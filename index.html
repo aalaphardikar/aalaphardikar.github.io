@@ -443,7 +443,7 @@
       if (document.activeElement === document.getElementById('inputBox')) return;
 
       typed += e.key.toLowerCase();
-      if (typed.length > 6) typed = typed.slice(-6);
+      if (typed.length > 7) typed = typed.slice(-7);
 
       if (typed === 'reveal' && !revealed && !transitioning) {
         revealed = true;
@@ -451,7 +451,7 @@
         triggerReveal();
       }
 
-      if (typed.slice(-3) === 'goodbye' && revealed && !transitioning) {
+      if (typed.slice(-7) === 'goodbye' && revealed && !transitioning) {
         transitioning = true;
         triggerClose();
       }
