@@ -14,41 +14,11 @@
       overflow: hidden;
     }
 
-    #vault {
+    #fx-canvas {
       position: fixed; inset: 0;
-      background: #ffffff;
-      z-index: 10;
+      z-index: 20;
       pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
-
-    #vault.revealing {
-      animation: vaultCrack 1.8s forwards;
-    }
-
-    @keyframes vaultCrack {
-      0%   { opacity: 1; background: #ffffff; }
-      20%  { opacity: 1; background: #ffffff; box-shadow: inset 0 0 0 2px #ff6800; }
-      40%  { opacity: 1; background: #0a0a0a; }
-      60%  { opacity: 0.6; }
-      80%  { opacity: 0.2; }
-      100% { opacity: 0; pointer-events: none; }
-    }
-
-    #vault.revealing::after {
-      content: '';
-      position: absolute; inset: 0;
-      background: repeating-linear-gradient(
-        0deg, transparent, transparent 2px,
-        rgba(255,104,0,0.03) 2px, rgba(255,104,0,0.03) 4px
-      );
-      animation: scanDown 1.8s forwards;
-    }
-
-    @keyframes scanDown {
-      0%   { opacity: 0; }
-      30%  { opacity: 1; }
-      100% { opacity: 0; }
+      display: none;
     }
 
     #app {
@@ -57,9 +27,9 @@
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
       opacity: 0;
-      transition: opacity 0.5s ease 1.4s;
       font-family: 'Share Tech Mono', monospace;
       overflow: hidden;
+      transition: none;
     }
 
     #app.visible { opacity: 1; }
@@ -95,7 +65,7 @@
       margin-bottom: 2.5rem;
       opacity: 0;
       transform: translateY(-20px);
-      transition: all 0.6s ease 1.8s;
+      transition: all 0.6s ease 0.3s;
     }
 
     #app.visible .header { opacity: 1; transform: translateY(0); }
@@ -134,7 +104,7 @@
       padding: 4px;
       opacity: 0;
       transform: translateY(10px);
-      transition: all 0.5s ease 2s;
+      transition: all 0.5s ease 0.5s;
     }
 
     #app.visible .mode-bar { opacity: 1; transform: translateY(0); }
@@ -166,14 +136,13 @@
     }
 
     .mode-btn span { position: relative; z-index: 1; }
-
     .mode-btn.active { opacity: 1; color: #080808; }
     .mode-btn.active::before { opacity: 1; }
 
     .panel {
       opacity: 0;
       transform: translateY(15px);
-      transition: all 0.5s ease 2.1s;
+      transition: all 0.5s ease 0.65s;
     }
 
     #app.visible .panel { opacity: 1; transform: translateY(0); }
@@ -323,7 +292,7 @@
       color: rgba(255,104,0,0.15);
       text-transform: uppercase;
       opacity: 0;
-      transition: opacity 0.5s ease 2.4s;
+      transition: opacity 0.5s ease 0.8s;
     }
 
     #app.visible .footer { opacity: 1; }
@@ -336,60 +305,11 @@
       );
       pointer-events: none; z-index: 1;
     }
-
-    @keyframes flicker {
-      0%,100%{opacity:1} 10%{opacity:0.9} 20%{opacity:1} 30%{opacity:0.85}
-      40%{opacity:1} 50%{opacity:0.95} 60%{opacity:1}
-    }
-
-    #app.visible { animation: flicker 0.4s ease 1.4s; }
-
-    #vault.closing {
-      display: block !important;
-      animation: vaultClose 1.8s forwards;
-    }
-
-    @keyframes vaultClose {
-      0%   { opacity: 0; background: #080808; }
-      15%  { opacity: 0.3; background: #080808; }
-      30%  { opacity: 1; background: #080808; box-shadow: inset 0 0 80px rgba(255,104,0,0.15); }
-      50%  { opacity: 1; background: #111111; box-shadow: inset 0 0 0 3px #ff6800; }
-      70%  { opacity: 1; background: #ffffff; box-shadow: inset 0 0 0 1px #ff6800; }
-      85%  { opacity: 1; background: #ffffff; box-shadow: none; }
-      100% { opacity: 1; background: #ffffff; }
-    }
-
-    #vault.closing::after {
-      content: '';
-      position: absolute; inset: 0;
-      background: repeating-linear-gradient(
-        0deg, transparent, transparent 2px,
-        rgba(255,104,0,0.05) 2px, rgba(255,104,0,0.05) 4px
-      );
-      animation: scanClose 1.8s forwards;
-    }
-
-    @keyframes scanClose {
-      0%   { opacity: 0; }
-      20%  { opacity: 1; }
-      70%  { opacity: 0.3; }
-      100% { opacity: 0; }
-    }
-
-    #app.closing { animation: appClose 1.0s forwards; }
-
-    @keyframes appClose {
-      0%   { opacity: 1; }
-      20%  { opacity: 0.8; filter: brightness(1.5) saturate(2); }
-      40%  { opacity: 0.4; filter: brightness(0.5); }
-      60%  { opacity: 0.1; }
-      100% { opacity: 0; }
-    }
   </style>
 </head>
 <body>
 
-  <div id="vault"></div>
+  <canvas id="fx-canvas"></canvas>
 
   <div id="app">
     <div class="scanlines"></div>
@@ -429,72 +349,242 @@
         </div>
       </div>
 
-      <div class="footer">type "reveal" to show // type "goodbye" to hide // click output to copy</div>
+      <div class="footer">type "reveal" to show // type "goodbye" to hide // ctrl+enter to run</div>
 
     </div>
   </div>
 
   <script>
+    const canvas = document.getElementById('fx-canvas');
+    const ctx = canvas.getContext('2d');
+    let animId = null;
+
+    function resizeCanvas() {
+      canvas.width  = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    // ── MATRIX RAIN REVEAL (orange & black) ──────
+    function runMatrixReveal(onDone) {
+      canvas.style.display = 'block';
+      resizeCanvas();
+
+      const W = canvas.width, H = canvas.height;
+      const fontSize = 14;
+      const cols = Math.floor(W / fontSize);
+      const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*';
+
+      const drops = Array.from({ length: cols }, () => ({
+        y: Math.random() * -H * 0.5 - fontSize,
+        speed: Math.random() * 3 + 1.5,
+        done: false
+      }));
+
+      const totalDuration = 2400;
+      const start = performance.now();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, W, H);
+
+      function frame(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / totalDuration, 1);
+
+        // Fade from white to black
+        const whiteness = Math.floor(255 * Math.max(0, 1 - progress * 1.4));
+        ctx.fillStyle = `rgba(${whiteness},${whiteness},${whiteness},0.15)`;
+        ctx.fillRect(0, 0, W, H);
+
+        let allDone = true;
+
+        drops.forEach((drop, i) => {
+          if (drop.done) return;
+          allDone = false;
+          drop.y += drop.speed;
+
+          const ch = chars[Math.floor(Math.random() * chars.length)];
+
+          // Dark orange trail
+          const orangeShade = Math.floor(120 + Math.random() * 80);
+          ctx.font = `${fontSize}px monospace`;
+          ctx.fillStyle = `rgba(${orangeShade}, ${Math.floor(orangeShade * 0.35)}, 0, 0.85)`;
+          ctx.fillText(ch, i * fontSize, drop.y);
+
+          // Bright orange/white head
+          ctx.fillStyle = `rgba(255, 200, 100, 0.95)`;
+          ctx.fillText(chars[Math.floor(Math.random() * chars.length)], i * fontSize, drop.y);
+
+          // Pure orange glow near bottom
+          if (drop.y > H * 0.4) {
+            const p = Math.min((drop.y - H * 0.4) / (H * 0.6), 1);
+            ctx.fillStyle = `rgba(255, 104, 0, ${p * 0.9})`;
+            ctx.fillText(ch, i * fontSize, drop.y);
+          }
+
+          if (drop.y > H + fontSize * 15) drop.done = true;
+        });
+
+        if (!allDone || progress < 1) {
+          animId = requestAnimationFrame(frame);
+        } else {
+          ctx.clearRect(0, 0, W, H);
+          canvas.style.display = 'none';
+          onDone();
+        }
+      }
+
+      animId = requestAnimationFrame(frame);
+    }
+
+    // ── BURN CLOSE ───────────────────────────────
+    function runBurnClose(onDone) {
+      canvas.style.display = 'block';
+      resizeCanvas();
+
+      const W = canvas.width, H = canvas.height;
+      const TILE = 5;
+      const cols = Math.ceil(W / TILE);
+      const rows = Math.ceil(H / TILE);
+
+      const tiles = [];
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const dx = Math.min(c, cols - 1 - c) / (cols * 0.5);
+          const dy = Math.min(r, rows - 1 - r) / (rows * 0.5);
+          const distFromEdge = Math.min(dx, dy);
+          tiles.push({
+            x: c * TILE, y: r * TILE,
+            edge: distFromEdge,
+            state: 'alive',
+            burnStart: null,
+            burnDuration: 250 + Math.random() * 200
+          });
+        }
+      }
+
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, W, H);
+
+      const totalDuration = 2200;
+      const start = performance.now();
+
+      function frame(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / totalDuration, 1);
+
+        ctx.clearRect(0, 0, W, H);
+        ctx.fillStyle = '#080808';
+        ctx.fillRect(0, 0, W, H);
+
+        let anyAlive = false;
+
+        tiles.forEach(t => {
+          const threshold = t.edge * 1.6;
+          if (progress >= threshold && t.state === 'alive') {
+            t.state = 'burning';
+            t.burnStart = now;
+          }
+
+          if (t.state === 'alive') {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(t.x, t.y, TILE, TILE);
+            anyAlive = true;
+          } else if (t.state === 'burning') {
+            const bp = Math.min((now - t.burnStart) / t.burnDuration, 1);
+            if (bp < 1) {
+              anyAlive = true;
+              let r, g, b, a;
+              if (bp < 0.25) {
+                const p = bp / 0.25;
+                r = 255; g = Math.floor(255 - p * 151); b = Math.floor(255 - p * 255); a = 1;
+              } else if (bp < 0.55) {
+                const p = (bp - 0.25) / 0.3;
+                r = 255; g = Math.floor(104 - p * 90); b = 0; a = 1;
+              } else if (bp < 0.8) {
+                const p = (bp - 0.55) / 0.25;
+                r = Math.floor(255 - p * 215); g = Math.floor(14 - p * 14); b = 0; a = 1;
+              } else {
+                const p = (bp - 0.8) / 0.2;
+                r = 40; g = 0; b = 0; a = 1 - p;
+              }
+              ctx.fillStyle = `rgba(${r},${g},${b},${a})`;
+              ctx.fillRect(t.x, t.y, TILE, TILE);
+
+              if (bp > 0.05 && bp < 0.65 && Math.random() > 0.75) {
+                ctx.fillStyle = `rgba(255,${Math.floor(120 + Math.random()*135)},0,${0.9*(1-bp)})`;
+                ctx.fillRect(
+                  t.x + (Math.random() - 0.5) * TILE * 3,
+                  t.y + (Math.random() - 0.5) * TILE * 3,
+                  2, 2
+                );
+              }
+            } else {
+              t.state = 'gone';
+            }
+          }
+        });
+
+        if (anyAlive) {
+          animId = requestAnimationFrame(frame);
+        } else {
+          ctx.clearRect(0, 0, W, H);
+          canvas.style.display = 'none';
+          onDone();
+        }
+      }
+
+      animId = requestAnimationFrame(frame);
+    }
+
+    // ── KEY LISTENER ─────────────────────────────
     let typed = '';
     let revealed = false;
     let transitioning = false;
 
     document.addEventListener('keydown', (e) => {
       if (document.activeElement === document.getElementById('inputBox')) return;
-
       typed += e.key.toLowerCase();
       if (typed.length > 7) typed = typed.slice(-7);
 
-      if (typed === 'reveal' && !revealed && !transitioning) {
-        revealed = true;
-        transitioning = true;
+      if (typed.endsWith('reveal') && !revealed && !transitioning) {
+        revealed = true; transitioning = true;
         triggerReveal();
       }
-
-      if (typed.slice(-7) === 'goodbye' && revealed && !transitioning) {
+      if (typed.endsWith('goodbye') && revealed && !transitioning) {
         transitioning = true;
         triggerClose();
       }
     });
 
     function triggerReveal() {
-      const vault = document.getElementById('vault');
-      const app = document.getElementById('app');
-      vault.style.display = 'block';
-      vault.classList.remove('closing');
-      vault.classList.add('revealing');
-      setTimeout(() => {
-        app.classList.add('visible');
-        vault.style.display = 'none';
+      if (animId) cancelAnimationFrame(animId);
+      runMatrixReveal(() => {
+        document.getElementById('app').classList.add('visible');
         transitioning = false;
         typed = '';
-      }, 1600);
+      });
     }
 
     function triggerClose() {
-      const vault = document.getElementById('vault');
       const app = document.getElementById('app');
-
-      vault.style.display = 'block';
-      vault.style.opacity = '0';
-      vault.classList.remove('revealing');
-      app.classList.add('closing');
-
-      setTimeout(() => { vault.classList.add('closing'); }, 50);
-
+      if (animId) cancelAnimationFrame(animId);
+      app.style.transition = 'opacity 0.12s ease';
+      app.style.opacity = '0';
       setTimeout(() => {
-        app.classList.remove('visible', 'closing');
-        vault.classList.remove('closing');
-        vault.style.opacity = '1';
-        vault.style.background = '#ffffff';
-        revealed = false;
-        transitioning = false;
-        typed = '';
-        document.getElementById('inputBox').value = '';
-        clearOutput();
-      }, 1800);
+        app.classList.remove('visible');
+        app.style.transition = '';
+        app.style.opacity = '';
+        runBurnClose(() => {
+          revealed = false; transitioning = false; typed = '';
+          document.getElementById('inputBox').value = '';
+          clearOutput();
+        });
+      }, 120);
     }
 
+    // ── CIPHER ───────────────────────────────────
     let mode = 'encrypt';
 
     function setMode(m) {
@@ -512,97 +602,76 @@
 
     async function deriveKey(secret) {
       const enc = new TextEncoder();
-      const keyMaterial = await crypto.subtle.importKey(
-        'raw', enc.encode(secret), { name: 'PBKDF2' }, false, ['deriveKey']
-      );
+      const km = await crypto.subtle.importKey('raw', enc.encode(secret), { name: 'PBKDF2' }, false, ['deriveKey']);
       return crypto.subtle.deriveKey(
         { name: 'PBKDF2', salt: enc.encode('cipher_salt_v1'), iterations: 100000, hash: 'SHA-256' },
-        keyMaterial,
-        { name: 'AES-GCM', length: 256 },
-        false, ['encrypt', 'decrypt']
+        km, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']
       );
     }
 
-    function bufToHex(buf) {
-      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
-    }
-
+    const bufToHex = buf => Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
     function hexToBuf(hex) {
-      const bytes = new Uint8Array(hex.length / 2);
-      for (let i = 0; i < hex.length; i += 2)
-        bytes[i/2] = parseInt(hex.substr(i, 2), 16);
-      return bytes;
+      const b = new Uint8Array(hex.length/2);
+      for (let i=0;i<hex.length;i+=2) b[i/2]=parseInt(hex.substr(i,2),16);
+      return b;
     }
 
-    async function encryptMsg(plaintext) {
+    async function encryptMsg(pt) {
       const key = await deriveKey(SECRET);
       const iv = crypto.getRandomValues(new Uint8Array(12));
-      const enc = new TextEncoder();
-      const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(plaintext));
-      return bufToHex(iv) + ':' + bufToHex(ciphertext);
+      const ct = await crypto.subtle.encrypt({name:'AES-GCM',iv}, key, new TextEncoder().encode(pt));
+      return bufToHex(iv)+':'+bufToHex(ct);
     }
 
-    async function decryptMsg(encoded) {
-      const [ivHex, ctHex] = encoded.split(':');
-      if (!ivHex || !ctHex) throw new Error('Invalid format');
+    async function decryptMsg(enc) {
+      const [ivH,ctH] = enc.split(':');
+      if (!ivH||!ctH) throw new Error('Invalid format');
       const key = await deriveKey(SECRET);
-      const iv = hexToBuf(ivHex);
-      const ciphertext = hexToBuf(ctHex);
-      const plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ciphertext);
-      return new TextDecoder().decode(plaintext);
+      const pt = await crypto.subtle.decrypt({name:'AES-GCM',iv:hexToBuf(ivH)}, key, hexToBuf(ctH));
+      return new TextDecoder().decode(pt);
     }
 
     async function execute() {
       const input = document.getElementById('inputBox').value.trim();
       if (!input) return;
-
       const btn = document.querySelector('.exec-btn');
-      btn.textContent = '...';
-      btn.disabled = true;
-
+      btn.textContent = '...'; btn.disabled = true;
       try {
-        const result = mode === 'encrypt' ? await encryptMsg(input) : await decryptMsg(input);
-        typeOutput(result);
-      } catch (e) {
-        typeOutput('// ERROR: ' + (e.message || 'decryption failed — invalid input or key mismatch'));
+        typeOutput(mode === 'encrypt' ? await encryptMsg(input) : await decryptMsg(input));
+      } catch(e) {
+        typeOutput('// ERROR: '+(e.message||'failed'));
       }
-
-      btn.textContent = mode.toUpperCase();
-      btn.disabled = false;
+      btn.textContent = mode.toUpperCase(); btn.disabled = false;
     }
 
     function typeOutput(text) {
       const box = document.getElementById('outputBox');
-      const placeholder = document.getElementById('outputPlaceholder');
-      const outputText = document.getElementById('outputText');
-
-      placeholder.style.display = 'none';
-      outputText.style.display = 'inline';
-      outputText.textContent = '';
+      const ph = document.getElementById('outputPlaceholder');
+      const ot = document.getElementById('outputText');
+      ph.style.display = 'none';
+      ot.style.display = 'inline';
+      ot.textContent = '';
       box.classList.add('has-output');
       box.classList.remove('copied');
-
-      const cursor = document.createElement('span');
-      cursor.className = 'cursor';
-      outputText.after(cursor);
-
+      const cur = document.createElement('span');
+      cur.className = 'cursor';
+      ot.after(cur);
       let i = 0;
-      const speed = Math.max(8, Math.min(30, 1500 / text.length));
-      const interval = setInterval(() => {
-        outputText.textContent += text[i];
-        i++;
-        if (i >= text.length) { clearInterval(interval); cursor.remove(); }
-      }, speed);
+      const spd = Math.max(8, Math.min(30, 1500/text.length));
+      const iv = setInterval(() => {
+        ot.textContent += text[i++];
+        if (i >= text.length) { clearInterval(iv); cur.remove(); }
+      }, spd);
     }
 
     function clearOutput() {
       const box = document.getElementById('outputBox');
-      const placeholder = document.getElementById('outputPlaceholder');
-      const outputText = document.getElementById('outputText');
-      placeholder.style.display = 'inline';
-      outputText.style.display = 'none';
-      outputText.textContent = '';
-      box.classList.remove('has-output', 'copied');
+      const ph = document.getElementById('outputPlaceholder');
+      const ot = document.getElementById('outputText');
+      ph.style.display = 'inline';
+      ot.style.display = 'none';
+      ot.textContent = '';
+      box.classList.remove('has-output','copied');
       box.querySelectorAll('.cursor').forEach(c => c.remove());
     }
 
@@ -616,7 +685,7 @@
       });
     }
 
-    document.getElementById('inputBox').addEventListener('keydown', (e) => {
+    document.getElementById('inputBox').addEventListener('keydown', e => {
       if (e.key === 'Enter' && e.ctrlKey) execute();
     });
   </script>
