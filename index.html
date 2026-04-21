@@ -6,40 +6,39 @@
   <title> </title>
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+ 
     html, body {
-      width: 100%; height: 100%;
-      min-height: 100vh;
-      min-width: 100vw;
-      margin: 0;
-      padding: 0;
+      width: 100vw; height: 100vh;
       background: #ffffff;
       overflow: hidden;
+      cursor: none;
     }
-
+ 
     #fx-canvas {
-      position: fixed; inset: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 20;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      z-index: 50;
       pointer-events: none;
-      display: none;
+      display: block;
     }
-
+ 
     #app {
-      position: fixed; inset: 0;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
       background: #080808;
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
       opacity: 0;
       font-family: 'Share Tech Mono', monospace;
       overflow: hidden;
-      transition: none;
+      z-index: 1;
     }
-
+ 
     #app.visible { opacity: 1; }
-
+ 
     #app::before {
       content: '';
       position: absolute; inset: 0;
@@ -49,7 +48,7 @@
       background-size: 40px 40px;
       pointer-events: none;
     }
-
+ 
     #app::after {
       content: '';
       position: absolute;
@@ -59,13 +58,13 @@
       background: radial-gradient(circle, rgba(255,104,0,0.08) 0%, transparent 70%);
       pointer-events: none;
     }
-
+ 
     .container {
       position: relative; z-index: 2;
       width: 100%; max-width: 700px;
       padding: 2rem;
     }
-
+ 
     .header {
       text-align: center;
       margin-bottom: 2.5rem;
@@ -73,9 +72,9 @@
       transform: translateY(-20px);
       transition: all 0.6s ease 0.3s;
     }
-
+ 
     #app.visible .header { opacity: 1; transform: translateY(0); }
-
+ 
     .header-title {
       font-family: 'Orbitron', monospace;
       font-size: clamp(1.8rem, 5vw, 3rem);
@@ -85,14 +84,14 @@
       text-shadow: 0 0 30px rgba(255,104,0,0.5), 0 0 60px rgba(255,104,0,0.2);
       line-height: 1;
     }
-
+ 
     .header-line {
       width: 100%; height: 1px;
       background: linear-gradient(90deg, transparent, #ff6800, transparent);
       margin: 1rem 0 0.5rem;
       opacity: 0.6;
     }
-
+ 
     .header-sub {
       font-size: 0.65rem;
       letter-spacing: 0.4em;
@@ -100,10 +99,9 @@
       opacity: 0.4;
       text-transform: uppercase;
     }
-
+ 
     .mode-bar {
-      display: flex;
-      gap: 1px;
+      display: flex; gap: 1px;
       margin-bottom: 1.5rem;
       background: #1a0a00;
       border: 1px solid #2a1500;
@@ -112,197 +110,150 @@
       transform: translateY(10px);
       transition: all 0.5s ease 0.5s;
     }
-
+ 
     #app.visible .mode-bar { opacity: 1; transform: translateY(0); }
-
+ 
     .mode-btn {
       flex: 1;
       font-family: 'Orbitron', monospace;
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
+      font-size: 0.7rem; font-weight: 700;
+      letter-spacing: 0.2em; text-transform: uppercase;
       padding: 0.7rem;
-      background: transparent;
-      border: none;
-      color: #ff6800;
-      opacity: 0.35;
-      cursor: pointer;
+      background: transparent; border: none;
+      color: #ff6800; opacity: 0.35;
+      cursor: none;
       transition: all 0.25s;
-      position: relative;
-      overflow: hidden;
+      position: relative; overflow: hidden;
     }
-
+ 
     .mode-btn::before {
       content: '';
       position: absolute; inset: 0;
-      background: #ff6800;
-      opacity: 0;
+      background: #ff6800; opacity: 0;
       transition: opacity 0.25s;
     }
-
+ 
     .mode-btn span { position: relative; z-index: 1; }
     .mode-btn.active { opacity: 1; color: #080808; }
     .mode-btn.active::before { opacity: 1; }
-
+ 
     .panel {
-      opacity: 0;
-      transform: translateY(15px);
+      opacity: 0; transform: translateY(15px);
       transition: all 0.5s ease 0.65s;
     }
-
+ 
     #app.visible .panel { opacity: 1; transform: translateY(0); }
-
+ 
     .box-label {
-      font-size: 0.6rem;
-      letter-spacing: 0.35em;
-      color: #ff6800;
-      opacity: 0.5;
-      text-transform: uppercase;
-      margin-bottom: 0.4rem;
+      font-size: 0.6rem; letter-spacing: 0.35em;
+      color: #ff6800; opacity: 0.5;
+      text-transform: uppercase; margin-bottom: 0.4rem;
       display: flex; align-items: center; gap: 0.5rem;
     }
-
+ 
     .box-label::after {
-      content: '';
-      flex: 1; height: 1px;
+      content: ''; flex: 1; height: 1px;
       background: linear-gradient(90deg, rgba(255,104,0,0.3), transparent);
     }
-
+ 
     textarea {
-      width: 100%;
-      height: 130px;
+      width: 100%; height: 130px;
       background: #0d0d0d;
       border: 1px solid #2a1500;
       border-left: 2px solid #ff6800;
       color: #ff9944;
       font-family: 'Share Tech Mono', monospace;
-      font-size: 0.85rem;
-      line-height: 1.6;
-      padding: 1rem;
-      resize: none;
-      outline: none;
+      font-size: 0.85rem; line-height: 1.6;
+      padding: 1rem; resize: none; outline: none;
       transition: border-color 0.2s, box-shadow 0.2s;
       caret-color: #ff6800;
+      cursor: none;
     }
-
+ 
     textarea::placeholder { color: rgba(255,104,0,0.2); }
-
+ 
     textarea:focus {
       border-color: #ff6800;
       box-shadow: 0 0 20px rgba(255,104,0,0.1), inset 0 0 20px rgba(255,104,0,0.03);
     }
-
-    .exec-wrap {
-      display: flex; justify-content: center;
-      margin: 1.2rem 0;
-    }
-
+ 
+    .exec-wrap { display: flex; justify-content: center; margin: 1.2rem 0; }
+ 
     .exec-btn {
       font-family: 'Orbitron', monospace;
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      color: #080808;
-      background: #ff6800;
-      border: none;
-      padding: 0.85rem 3rem;
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
+      font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.25em; text-transform: uppercase;
+      color: #080808; background: #ff6800;
+      border: none; padding: 0.85rem 3rem;
+      cursor: none; position: relative; overflow: hidden;
       clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
       transition: all 0.2s;
       box-shadow: 0 0 20px rgba(255,104,0,0.3);
     }
-
+ 
     .exec-btn::before {
-      content: '';
-      position: absolute; inset: 0;
+      content: ''; position: absolute; inset: 0;
       background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
-      transform: translateX(-100%);
-      transition: transform 0.4s;
+      transform: translateX(-100%); transition: transform 0.4s;
     }
-
+ 
     .exec-btn:hover { background: #ff8c00; box-shadow: 0 0 35px rgba(255,104,0,0.5); }
     .exec-btn:hover::before { transform: translateX(100%); }
     .exec-btn:active { transform: scale(0.97); }
-
+ 
     .output-box {
-      width: 100%;
-      min-height: 130px;
+      width: 100%; min-height: 130px;
       background: #0d0d0d;
       border: 1px solid #2a1500;
       border-left: 2px solid rgba(255,104,0,0.3);
       color: #ff6800;
       font-family: 'Share Tech Mono', monospace;
-      font-size: 0.82rem;
-      line-height: 1.6;
-      padding: 1rem;
-      word-break: break-all;
-      white-space: pre-wrap;
-      position: relative;
-      transition: border-color 0.3s;
-      cursor: pointer;
+      font-size: 0.82rem; line-height: 1.6;
+      padding: 1rem; word-break: break-all;
+      white-space: pre-wrap; position: relative;
+      transition: border-color 0.3s; cursor: none;
     }
-
-    .output-box.has-output {
-      border-left-color: #ff6800;
-      box-shadow: 0 0 20px rgba(255,104,0,0.07);
-    }
-
+ 
+    .output-box.has-output { border-left-color: #ff6800; box-shadow: 0 0 20px rgba(255,104,0,0.07); }
     .output-placeholder { color: rgba(255,104,0,0.18); font-size: 0.78rem; }
-
+ 
     .copy-hint {
       position: absolute; bottom: 0.5rem; right: 0.75rem;
-      font-size: 0.55rem;
-      letter-spacing: 0.2em;
-      color: rgba(255,104,0,0.3);
-      text-transform: uppercase;
-      opacity: 0;
-      transition: opacity 0.2s;
+      font-size: 0.55rem; letter-spacing: 0.2em;
+      color: rgba(255,104,0,0.3); text-transform: uppercase;
+      opacity: 0; transition: opacity 0.2s;
     }
-
+ 
     .output-box.has-output:hover .copy-hint { opacity: 1; }
-
+ 
     .copied-flash {
       position: absolute; inset: 0;
       background: rgba(255,104,0,0.08);
       display: flex; align-items: center; justify-content: center;
-      font-family: 'Orbitron', monospace;
-      font-size: 0.7rem;
-      letter-spacing: 0.3em;
-      color: #ff6800;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s;
+      font-family: 'Orbitron', monospace; font-size: 0.7rem;
+      letter-spacing: 0.3em; color: #ff6800;
+      opacity: 0; pointer-events: none; transition: opacity 0.2s;
     }
-
+ 
     .output-box.copied .copied-flash { opacity: 1; }
-
+ 
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-    .cursor {
-      display: inline-block;
-      width: 8px; height: 1em;
-      background: #ff6800;
-      margin-left: 2px;
+    .cursor-blink {
+      display: inline-block; width: 8px; height: 1em;
+      background: #ff6800; margin-left: 2px;
       vertical-align: text-bottom;
       animation: blink 0.8s step-end infinite;
     }
-
+ 
     .footer {
-      text-align: center;
-      margin-top: 1.5rem;
-      font-size: 0.55rem;
-      letter-spacing: 0.3em;
-      color: rgba(255,104,0,0.15);
-      text-transform: uppercase;
-      opacity: 0;
-      transition: opacity 0.5s ease 0.8s;
+      text-align: center; margin-top: 1.5rem;
+      font-size: 0.55rem; letter-spacing: 0.3em;
+      color: rgba(255,104,0,0.15); text-transform: uppercase;
+      opacity: 0; transition: opacity 0.5s ease 0.8s;
     }
-
+ 
     #app.visible .footer { opacity: 1; }
-
+ 
     .scanlines {
       position: fixed; inset: 0;
       background: repeating-linear-gradient(
@@ -314,38 +265,31 @@
   </style>
 </head>
 <body>
-
+ 
   <canvas id="fx-canvas"></canvas>
-
+ 
   <div id="app">
     <div class="scanlines"></div>
     <div class="container">
-
       <div class="header">
         <div class="header-title">CIPHER</div>
         <div class="header-line"></div>
         <div class="header-sub">AES-256 // end-to-end // zero trace // By HardiCar</div>
       </div>
-
+ 
       <div class="mode-bar">
-        <button class="mode-btn active" id="encryptBtn" onclick="setMode('encrypt')">
-          <span>⬡ Encrypt</span>
-        </button>
-        <button class="mode-btn" id="decryptBtn" onclick="setMode('decrypt')">
-          <span>⬡ Decrypt</span>
-        </button>
+        <button class="mode-btn active" id="encryptBtn" onclick="setMode('encrypt')"><span>⬡ Encrypt</span></button>
+        <button class="mode-btn" id="decryptBtn" onclick="setMode('decrypt')"><span>⬡ Decrypt</span></button>
       </div>
-
+ 
       <div class="panel">
         <div class="box-label">input message</div>
         <textarea id="inputBox" placeholder="Enter message here..."></textarea>
-
+ 
         <div class="exec-wrap">
-          <button class="exec-btn" onclick="execute()">
-            <span id="btnLabel">ENCRYPT</span>
-          </button>
+          <button class="exec-btn" onclick="execute()"><span id="btnLabel">ENCRYPT</span></button>
         </div>
-
+ 
         <div class="box-label">output</div>
         <div class="output-box" id="outputBox" onclick="copyOutput()">
           <span class="output-placeholder" id="outputPlaceholder">// output will appear here</span>
@@ -354,206 +298,250 @@
           <div class="copied-flash">COPIED</div>
         </div>
       </div>
-
+ 
       <div class="footer">type "reveal" to show // type "goodbye" to hide // ctrl+enter to run</div>
-
     </div>
   </div>
-
+ 
   <script>
+    // ─────────────────────────────────────────────
+    //  CANVAS SETUP — always full screen
+    // ─────────────────────────────────────────────
     const canvas = document.getElementById('fx-canvas');
     const ctx = canvas.getContext('2d');
-    let animId = null;
-
-    function resizeCanvas() {
+ 
+    function fitCanvas() {
       canvas.width  = window.innerWidth;
       canvas.height = window.innerHeight;
     }
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-
-    // ── MATRIX RAIN REVEAL (orange & black) ──────
-    function runMatrixReveal(onDone) {
-      canvas.style.display = 'block';
-      resizeCanvas();
-
+    fitCanvas();
+    window.addEventListener('resize', fitCanvas);
+ 
+    // ─────────────────────────────────────────────
+    //  SKULL PIXEL MAP (16×16)
+    // ─────────────────────────────────────────────
+    const SKULL = [
+      [0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0],
+      [0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0],
+      [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
+      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+      [1,1,0,0,1,1,1,1,1,1,1,1,0,0,1,1],
+      [1,1,0,0,1,1,1,1,1,1,1,1,0,0,1,1],
+      [1,1,0,0,1,1,1,1,1,1,1,1,0,0,1,1],
+      [1,1,1,1,1,0,1,1,1,1,0,1,1,1,1,1],
+      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+      [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
+      [0,1,1,0,1,1,1,1,1,1,1,1,0,1,1,0],
+      [0,1,0,1,0,1,1,1,1,1,1,0,1,0,1,0],
+      [0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0],
+      [0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0],
+      [0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0],
+    ];
+ 
+    // ─────────────────────────────────────────────
+    //  SKULL REVEAL ANIMATION
+    //  Pixels fly in from random positions → form skull → zoom to fill screen
+    // ─────────────────────────────────────────────
+    function runSkullReveal(onDone) {
+      fitCanvas();
       const W = canvas.width, H = canvas.height;
-      const fontSize = 14;
-      const cols = Math.floor(W / fontSize);
-      const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*';
-
-      const drops = Array.from({ length: cols }, () => ({
-        y: Math.random() * -H * 0.5 - fontSize,
-        speed: Math.random() * 3 + 1.5,
-        done: false
-      }));
-
-      const totalDuration = 2400;
-      const start = performance.now();
-
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, W, H);
-
-      function frame(now) {
-        const elapsed = now - start;
-        const progress = Math.min(elapsed / totalDuration, 1);
-
-        // Fade from white to black
-        const whiteness = Math.floor(255 * Math.max(0, 1 - progress * 1.4));
-        ctx.fillStyle = `rgba(${whiteness},${whiteness},${whiteness},0.15)`;
-        ctx.fillRect(0, 0, W, H);
-
-        let allDone = true;
-
-        drops.forEach((drop, i) => {
-          if (drop.done) return;
-          allDone = false;
-          drop.y += drop.speed;
-
-          const ch = chars[Math.floor(Math.random() * chars.length)];
-
-          // Dark orange trail
-          const orangeShade = Math.floor(120 + Math.random() * 80);
-          ctx.font = `${fontSize}px monospace`;
-          ctx.fillStyle = `rgba(${orangeShade}, ${Math.floor(orangeShade * 0.35)}, 0, 0.85)`;
-          ctx.fillText(ch, i * fontSize, drop.y);
-
-          // Bright orange/white head
-          ctx.fillStyle = `rgba(255, 200, 100, 0.95)`;
-          ctx.fillText(chars[Math.floor(Math.random() * chars.length)], i * fontSize, drop.y);
-
-          // Pure orange glow near bottom
-          if (drop.y > H * 0.4) {
-            const p = Math.min((drop.y - H * 0.4) / (H * 0.6), 1);
-            ctx.fillStyle = `rgba(255, 104, 0, ${p * 0.9})`;
-            ctx.fillText(ch, i * fontSize, drop.y);
-          }
-
-          if (drop.y > H + fontSize * 15) drop.done = true;
-        });
-
-        if (!allDone || progress < 1) {
-          animId = requestAnimationFrame(frame);
-        } else {
-          ctx.clearRect(0, 0, W, H);
-          canvas.style.display = 'none';
-          onDone();
-        }
-      }
-
-      animId = requestAnimationFrame(frame);
-    }
-
-    // ── BURN CLOSE ───────────────────────────────
-    function runBurnClose(onDone) {
-      canvas.style.display = 'block';
-      resizeCanvas();
-
-      const W = canvas.width, H = canvas.height;
-      const TILE = 5;
-      const cols = Math.ceil(W / TILE);
-      const rows = Math.ceil(H / TILE);
-
-      const tiles = [];
-      for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-          const dx = Math.min(c, cols - 1 - c) / (cols * 0.5);
-          const dy = Math.min(r, rows - 1 - r) / (rows * 0.5);
-          const distFromEdge = Math.min(dx, dy);
-          tiles.push({
-            x: c * TILE, y: r * TILE,
-            edge: distFromEdge,
-            state: 'alive',
-            burnStart: null,
-            burnDuration: 250 + Math.random() * 200
+ 
+      const ROWS = SKULL.length, COLS = SKULL[0].length;
+      const SKULL_SIZE = Math.min(W, H) * 0.35;
+      const CELL = SKULL_SIZE / COLS;
+ 
+      const cx = W / 2;
+      const cy = H / 2;
+      const skullLeft = cx - SKULL_SIZE / 2;
+      const skullTop  = cy - SKULL_SIZE / 2;
+ 
+      // Build pixel targets
+      const pixels = [];
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          if (!SKULL[r][c]) continue;
+          pixels.push({
+            tx: skullLeft + c * CELL,
+            ty: skullTop  + r * CELL,
+            x: Math.random() * W,
+            y: Math.random() * H,
+            size: CELL,
+            speed: 0.04 + Math.random() * 0.05,
+            // orange shades
+            r: 200 + Math.floor(Math.random() * 55),
+            g: 60  + Math.floor(Math.random() * 60),
+            b: 0,
           });
         }
       }
-
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, W, H);
-
-      const totalDuration = 2200;
-      const start = performance.now();
-
+ 
+      const PHASE1 = 1400; // fly-in duration ms
+      const PHASE2 = 600;  // hold duration
+      const PHASE3 = 500;  // zoom-out to fill
+      const TOTAL  = PHASE1 + PHASE2 + PHASE3;
+      const start  = performance.now();
+      let animId;
+ 
       function frame(now) {
         const elapsed = now - start;
-        const progress = Math.min(elapsed / totalDuration, 1);
-
-        ctx.clearRect(0, 0, W, H);
+ 
+        // Black background
         ctx.fillStyle = '#080808';
         ctx.fillRect(0, 0, W, H);
-
-        let anyAlive = false;
-
-        tiles.forEach(t => {
-          const threshold = t.edge * 1.6;
-          if (progress >= threshold && t.state === 'alive') {
-            t.state = 'burning';
-            t.burnStart = now;
+ 
+        if (elapsed < PHASE1) {
+          // Phase 1: pixels flying toward skull positions
+          const t = elapsed / PHASE1;
+          pixels.forEach(p => {
+            const ease = 1 - Math.pow(1 - t, 3);
+            const px = p.x + (p.tx - p.x) * ease;
+            const py = p.y + (p.ty - p.y) * ease;
+            const alpha = 0.4 + ease * 0.6;
+            ctx.fillStyle = `rgba(${p.r},${p.g},${p.b},${alpha})`;
+            ctx.fillRect(px, py, p.size, p.size);
+          });
+ 
+          // Trailing particles
+          for (let i = 0; i < 30; i++) {
+            const p = pixels[Math.floor(Math.random() * pixels.length)];
+            const ease = 1 - Math.pow(1 - t, 3);
+            const px = p.x + (p.tx - p.x) * ease;
+            const py = p.y + (p.ty - p.y) * ease;
+            ctx.fillStyle = `rgba(255,140,0,${Math.random() * 0.4})`;
+            ctx.fillRect(px + (Math.random()-0.5)*20, py + (Math.random()-0.5)*20, 2, 2);
           }
-
-          if (t.state === 'alive') {
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(t.x, t.y, TILE, TILE);
-            anyAlive = true;
-          } else if (t.state === 'burning') {
-            const bp = Math.min((now - t.burnStart) / t.burnDuration, 1);
-            if (bp < 1) {
-              anyAlive = true;
-              let r, g, b, a;
-              if (bp < 0.25) {
-                const p = bp / 0.25;
-                r = 255; g = Math.floor(255 - p * 151); b = Math.floor(255 - p * 255); a = 1;
-              } else if (bp < 0.55) {
-                const p = (bp - 0.25) / 0.3;
-                r = 255; g = Math.floor(104 - p * 90); b = 0; a = 1;
-              } else if (bp < 0.8) {
-                const p = (bp - 0.55) / 0.25;
-                r = Math.floor(255 - p * 215); g = Math.floor(14 - p * 14); b = 0; a = 1;
-              } else {
-                const p = (bp - 0.8) / 0.2;
-                r = 40; g = 0; b = 0; a = 1 - p;
-              }
-              ctx.fillStyle = `rgba(${r},${g},${b},${a})`;
-              ctx.fillRect(t.x, t.y, TILE, TILE);
-
-              if (bp > 0.05 && bp < 0.65 && Math.random() > 0.75) {
-                ctx.fillStyle = `rgba(255,${Math.floor(120 + Math.random()*135)},0,${0.9*(1-bp)})`;
-                ctx.fillRect(
-                  t.x + (Math.random() - 0.5) * TILE * 3,
-                  t.y + (Math.random() - 0.5) * TILE * 3,
-                  2, 2
-                );
-              }
-            } else {
-              t.state = 'gone';
-            }
+ 
+        } else if (elapsed < PHASE1 + PHASE2) {
+          // Phase 2: hold skull — pulsing glow
+          const pulse = 0.7 + 0.3 * Math.sin((elapsed - PHASE1) / 80);
+          pixels.forEach(p => {
+            ctx.fillStyle = `rgba(${p.r},${p.g},${p.b},${pulse})`;
+            ctx.fillRect(p.tx, p.ty, p.size, p.size);
+          });
+ 
+          // Orange glow behind skull
+          const grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, SKULL_SIZE * 0.8);
+          grd.addColorStop(0, `rgba(255,104,0,${0.15 * pulse})`);
+          grd.addColorStop(1, 'rgba(255,104,0,0)');
+          ctx.fillStyle = grd;
+          ctx.fillRect(0, 0, W, H);
+ 
+        } else {
+          // Phase 3: skull pixels zoom outward to fill screen → flash white → done
+          const t = (elapsed - PHASE1 - PHASE2) / PHASE3;
+          const ease = t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
+ 
+          pixels.forEach(p => {
+            const scale = 1 + ease * 60;
+            const px = cx + (p.tx + p.size/2 - cx) * scale - (p.size * scale) / 2;
+            const py = cy + (p.ty + p.size/2 - cy) * scale - (p.size * scale) / 2;
+            const alpha = 1 - ease * 0.8;
+            ctx.fillStyle = `rgba(${p.r},${p.g},${p.b},${alpha})`;
+            ctx.fillRect(px, py, p.size * scale, p.size * scale);
+          });
+ 
+          // White flash at end
+          if (t > 0.6) {
+            const flashAlpha = (t - 0.6) / 0.4;
+            ctx.fillStyle = `rgba(8,8,8,${flashAlpha})`;
+            ctx.fillRect(0, 0, W, H);
           }
-        });
-
-        if (anyAlive) {
+        }
+ 
+        if (elapsed < TOTAL) {
           animId = requestAnimationFrame(frame);
         } else {
           ctx.clearRect(0, 0, W, H);
-          canvas.style.display = 'none';
+          cancelAnimationFrame(animId);
           onDone();
         }
       }
-
+ 
       animId = requestAnimationFrame(frame);
     }
-
-    // ── KEY LISTENER ─────────────────────────────
+ 
+    // ─────────────────────────────────────────────
+    //  WAVE WASH CLOSE ANIMATION
+    //  White wave sweeps left → right across the screen
+    // ─────────────────────────────────────────────
+    function runWaveClose(onDone) {
+      fitCanvas();
+      const W = canvas.width, H = canvas.height;
+      const DURATION = 1200;
+      const start = performance.now();
+      let animId;
+ 
+      // Capture the app as a snapshot by drawing a dark rectangle
+      // (since app is behind canvas, we just wash over it)
+      function frame(now) {
+        const elapsed = now - start;
+        const t = Math.min(elapsed / DURATION, 1);
+ 
+        ctx.clearRect(0, 0, W, H);
+ 
+        // Draw dark bg first (app underneath)
+        ctx.fillStyle = '#080808';
+        ctx.fillRect(0, 0, W, H);
+ 
+        // Wave front position
+        const waveX = t * (W + 200) - 100;
+ 
+        // Draw white "already washed" area to the left
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, waveX, H);
+ 
+        // Wave edge — curved, foamy
+        const waveWidth = 120;
+        for (let y = 0; y < H; y += 2) {
+          const wobble = Math.sin(y * 0.04 + elapsed * 0.008) * 18
+                       + Math.sin(y * 0.015 + elapsed * 0.005) * 10;
+          const edgeX = waveX + wobble;
+ 
+          // Foam gradient at wave edge
+          const grad = ctx.createLinearGradient(edgeX - waveWidth, y, edgeX + 20, y);
+          grad.addColorStop(0, 'rgba(255,255,255,1)');
+          grad.addColorStop(0.6, 'rgba(255,200,100,0.6)');
+          grad.addColorStop(0.85, 'rgba(255,104,0,0.3)');
+          grad.addColorStop(1, 'rgba(255,104,0,0)');
+          ctx.fillStyle = grad;
+          ctx.fillRect(edgeX - waveWidth, y, waveWidth + 20, 2);
+        }
+ 
+        // Sparkle foam dots near wave front
+        for (let i = 0; i < 20; i++) {
+          const sy = Math.random() * H;
+          const wobble = Math.sin(sy * 0.04 + elapsed * 0.008) * 18;
+          const sx = waveX + wobble + (Math.random() - 0.5) * 40;
+          const alpha = Math.random() * 0.8;
+          ctx.fillStyle = `rgba(255,220,150,${alpha})`;
+          ctx.fillRect(sx, sy, Math.random() * 3 + 1, Math.random() * 3 + 1);
+        }
+ 
+        if (t < 1) {
+          animId = requestAnimationFrame(frame);
+        } else {
+          ctx.clearRect(0, 0, W, H);
+          cancelAnimationFrame(animId);
+          onDone();
+        }
+      }
+ 
+      animId = requestAnimationFrame(frame);
+    }
+ 
+    // ─────────────────────────────────────────────
+    //  KEY LISTENER
+    // ─────────────────────────────────────────────
     let typed = '';
     let revealed = false;
     let transitioning = false;
-
+ 
     document.addEventListener('keydown', (e) => {
       if (document.activeElement === document.getElementById('inputBox')) return;
       typed += e.key.toLowerCase();
       if (typed.length > 7) typed = typed.slice(-7);
-
+ 
       if (typed.endsWith('reveal') && !revealed && !transitioning) {
         revealed = true; transitioning = true;
         triggerReveal();
@@ -563,36 +551,43 @@
         triggerClose();
       }
     });
-
+ 
     function triggerReveal() {
-      if (animId) cancelAnimationFrame(animId);
-      runMatrixReveal(() => {
+      // White base
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+ 
+      runSkullReveal(() => {
         document.getElementById('app').classList.add('visible');
+        // Clear canvas so app shows through
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         transitioning = false;
         typed = '';
       });
     }
-
+ 
     function triggerClose() {
       const app = document.getElementById('app');
-      if (animId) cancelAnimationFrame(animId);
-      app.style.transition = 'opacity 0.12s ease';
-      app.style.opacity = '0';
-      setTimeout(() => {
+ 
+      runWaveClose(() => {
         app.classList.remove('visible');
-        app.style.transition = '';
-        app.style.opacity = '';
-        runBurnClose(() => {
-          revealed = false; transitioning = false; typed = '';
-          document.getElementById('inputBox').value = '';
-          clearOutput();
-        });
-      }, 120);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // Set body back to white
+        document.body.style.background = '#ffffff';
+        revealed = false; transitioning = false; typed = '';
+        document.getElementById('inputBox').value = '';
+        clearOutput();
+      });
     }
-
-    // ── CIPHER ───────────────────────────────────
+ 
+    // Keep white background behind canvas when hidden
+    document.body.style.background = '#ffffff';
+ 
+    // ─────────────────────────────────────────────
+    //  CIPHER LOGIC
+    // ─────────────────────────────────────────────
     let mode = 'encrypt';
-
+ 
     function setMode(m) {
       mode = m;
       document.getElementById('encryptBtn').classList.toggle('active', m === 'encrypt');
@@ -603,9 +598,9 @@
       document.getElementById('inputBox').placeholder =
         m === 'encrypt' ? 'Enter message to encrypt...' : 'Enter encrypted text to decrypt...';
     }
-
+ 
     const SECRET = 'CIPHER_VOID_STATIC_KEY_2024_X9Z';
-
+ 
     async function deriveKey(secret) {
       const enc = new TextEncoder();
       const km = await crypto.subtle.importKey('raw', enc.encode(secret), { name: 'PBKDF2' }, false, ['deriveKey']);
@@ -614,29 +609,29 @@
         km, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']
       );
     }
-
+ 
     const bufToHex = buf => Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
     function hexToBuf(hex) {
-      const b = new Uint8Array(hex.length/2);
-      for (let i=0;i<hex.length;i+=2) b[i/2]=parseInt(hex.substr(i,2),16);
+      const b = new Uint8Array(hex.length / 2);
+      for (let i = 0; i < hex.length; i += 2) b[i/2] = parseInt(hex.substr(i, 2), 16);
       return b;
     }
-
+ 
     async function encryptMsg(pt) {
       const key = await deriveKey(SECRET);
       const iv = crypto.getRandomValues(new Uint8Array(12));
-      const ct = await crypto.subtle.encrypt({name:'AES-GCM',iv}, key, new TextEncoder().encode(pt));
-      return bufToHex(iv)+':'+bufToHex(ct);
+      const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(pt));
+      return bufToHex(iv) + ':' + bufToHex(ct);
     }
-
+ 
     async function decryptMsg(enc) {
-      const [ivH,ctH] = enc.split(':');
-      if (!ivH||!ctH) throw new Error('Invalid format');
+      const [ivH, ctH] = enc.split(':');
+      if (!ivH || !ctH) throw new Error('Invalid format');
       const key = await deriveKey(SECRET);
-      const pt = await crypto.subtle.decrypt({name:'AES-GCM',iv:hexToBuf(ivH)}, key, hexToBuf(ctH));
+      const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: hexToBuf(ivH) }, key, hexToBuf(ctH));
       return new TextDecoder().decode(pt);
     }
-
+ 
     async function execute() {
       const input = document.getElementById('inputBox').value.trim();
       if (!input) return;
@@ -645,42 +640,42 @@
       try {
         typeOutput(mode === 'encrypt' ? await encryptMsg(input) : await decryptMsg(input));
       } catch(e) {
-        typeOutput('// ERROR: '+(e.message||'failed'));
+        typeOutput('// ERROR: ' + (e.message || 'failed'));
       }
       btn.textContent = mode.toUpperCase(); btn.disabled = false;
     }
-
+ 
     function typeOutput(text) {
       const box = document.getElementById('outputBox');
-      const ph = document.getElementById('outputPlaceholder');
-      const ot = document.getElementById('outputText');
+      const ph  = document.getElementById('outputPlaceholder');
+      const ot  = document.getElementById('outputText');
       ph.style.display = 'none';
       ot.style.display = 'inline';
       ot.textContent = '';
       box.classList.add('has-output');
       box.classList.remove('copied');
       const cur = document.createElement('span');
-      cur.className = 'cursor';
+      cur.className = 'cursor-blink';
       ot.after(cur);
       let i = 0;
-      const spd = Math.max(8, Math.min(30, 1500/text.length));
+      const spd = Math.max(8, Math.min(30, 1500 / text.length));
       const iv = setInterval(() => {
         ot.textContent += text[i++];
         if (i >= text.length) { clearInterval(iv); cur.remove(); }
       }, spd);
     }
-
+ 
     function clearOutput() {
       const box = document.getElementById('outputBox');
-      const ph = document.getElementById('outputPlaceholder');
-      const ot = document.getElementById('outputText');
+      const ph  = document.getElementById('outputPlaceholder');
+      const ot  = document.getElementById('outputText');
       ph.style.display = 'inline';
       ot.style.display = 'none';
       ot.textContent = '';
-      box.classList.remove('has-output','copied');
-      box.querySelectorAll('.cursor').forEach(c => c.remove());
+      box.classList.remove('has-output', 'copied');
+      box.querySelectorAll('.cursor-blink').forEach(c => c.remove());
     }
-
+ 
     function copyOutput() {
       const text = document.getElementById('outputText').textContent;
       if (!text) return;
@@ -690,7 +685,7 @@
         setTimeout(() => box.classList.remove('copied'), 1000);
       });
     }
-
+ 
     document.getElementById('inputBox').addEventListener('keydown', e => {
       if (e.key === 'Enter' && e.ctrlKey) execute();
     });
