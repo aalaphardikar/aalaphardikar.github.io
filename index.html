@@ -7,286 +7,72 @@
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
- 
-    html, body {
-      width: 100vw; height: 100vh;
-      background: #ffffff;
-      overflow: hidden;
-    }
- 
-    #fx-canvas {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      z-index: 50;
-      pointer-events: none;
-      display: block;
-    }
- 
-    #app {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      background: #080808;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      opacity: 0;
-      font-family: 'Share Tech Mono', monospace;
-      overflow: hidden;
-      z-index: 1;
-    }
- 
+    html, body { width: 100vw; height: 100vh; background: #ffffff; overflow: hidden; }
+    #fx-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 50; pointer-events: none; display: block; }
+    #app { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #080808; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; font-family: 'Share Tech Mono', monospace; overflow: hidden; z-index: 1; }
     #app.visible { opacity: 1; }
- 
-    #app::before {
-      content: '';
-      position: absolute; inset: 0;
-      background-image:
-        linear-gradient(rgba(255,104,0,0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,104,0,0.04) 1px, transparent 1px);
-      background-size: 40px 40px;
-      pointer-events: none;
-    }
- 
-    #app::after {
-      content: '';
-      position: absolute;
-      top: -200px; left: 50%;
-      transform: translateX(-50%);
-      width: 600px; height: 600px;
-      background: radial-gradient(circle, rgba(255,104,0,0.08) 0%, transparent 70%);
-      pointer-events: none;
-    }
- 
-    .container {
-      position: relative; z-index: 2;
-      width: 100%; max-width: 700px;
-      padding: 2rem;
-    }
- 
-    .header {
-      text-align: center;
-      margin-bottom: 2.5rem;
-      opacity: 0;
-      transform: translateY(-20px);
-      transition: all 0.6s ease 0.3s;
-    }
- 
+    #app::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,104,0,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,104,0,0.04) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; }
+    #app::after { content: ''; position: absolute; top: -200px; left: 50%; transform: translateX(-50%); width: 600px; height: 600px; background: radial-gradient(circle, rgba(255,104,0,0.08) 0%, transparent 70%); pointer-events: none; }
+    .container { position: relative; z-index: 2; width: 100%; max-width: 700px; padding: 2rem; }
+    .header { text-align: center; margin-bottom: 2.5rem; opacity: 0; transform: translateY(-20px); transition: all 0.6s ease 0.3s; }
     #app.visible .header { opacity: 1; transform: translateY(0); }
- 
-    .header-title {
-      font-family: 'Orbitron', monospace;
-      font-size: clamp(1.8rem, 5vw, 3rem);
-      font-weight: 900;
-      color: #ff6800;
-      letter-spacing: 0.2em;
-      text-shadow: 0 0 30px rgba(255,104,0,0.5), 0 0 60px rgba(255,104,0,0.2);
-      line-height: 1;
-    }
- 
-    .header-line {
-      width: 100%; height: 1px;
-      background: linear-gradient(90deg, transparent, #ff6800, transparent);
-      margin: 1rem 0 0.5rem;
-      opacity: 0.6;
-    }
- 
-    .header-sub {
-      font-size: 0.65rem;
-      letter-spacing: 0.4em;
-      color: #ff6800;
-      opacity: 0.4;
-      text-transform: uppercase;
-    }
- 
-    .mode-bar {
-      display: flex; gap: 1px;
-      margin-bottom: 1.5rem;
-      background: #1a0a00;
-      border: 1px solid #2a1500;
-      padding: 4px;
-      opacity: 0;
-      transform: translateY(10px);
-      transition: all 0.5s ease 0.5s;
-    }
- 
+    .header-title { font-family: 'Orbitron', monospace; font-size: clamp(1.8rem, 5vw, 3rem); font-weight: 900; color: #ff6800; letter-spacing: 0.2em; text-shadow: 0 0 30px rgba(255,104,0,0.5), 0 0 60px rgba(255,104,0,0.2); line-height: 1; }
+    .header-line { width: 100%; height: 1px; background: linear-gradient(90deg, transparent, #ff6800, transparent); margin: 1rem 0 0.5rem; opacity: 0.6; }
+    .header-sub { font-size: 0.65rem; letter-spacing: 0.4em; color: #ff6800; opacity: 0.4; text-transform: uppercase; }
+    .mode-bar { display: flex; gap: 1px; margin-bottom: 1.5rem; background: #1a0a00; border: 1px solid #2a1500; padding: 4px; opacity: 0; transform: translateY(10px); transition: all 0.5s ease 0.5s; }
     #app.visible .mode-bar { opacity: 1; transform: translateY(0); }
- 
-    .mode-btn {
-      flex: 1;
-      font-family: 'Orbitron', monospace;
-      font-size: 0.7rem; font-weight: 700;
-      letter-spacing: 0.2em; text-transform: uppercase;
-      padding: 0.7rem;
-      background: transparent; border: none;
-      color: #ff6800; opacity: 0.35;
-      transition: all 0.25s;
-      position: relative; overflow: hidden;
-    }
- 
-    .mode-btn::before {
-      content: '';
-      position: absolute; inset: 0;
-      background: #ff6800; opacity: 0;
-      transition: opacity 0.25s;
-    }
- 
+    .mode-btn { flex: 1; font-family: 'Orbitron', monospace; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; padding: 0.7rem; background: transparent; border: none; color: #ff6800; opacity: 0.35; transition: all 0.25s; position: relative; overflow: hidden; }
+    .mode-btn::before { content: ''; position: absolute; inset: 0; background: #ff6800; opacity: 0; transition: opacity 0.25s; }
     .mode-btn span { position: relative; z-index: 1; }
     .mode-btn.active { opacity: 1; color: #080808; }
     .mode-btn.active::before { opacity: 1; }
- 
-    .panel {
-      opacity: 0; transform: translateY(15px);
-      transition: all 0.5s ease 0.65s;
-    }
- 
+    .panel { opacity: 0; transform: translateY(15px); transition: all 0.5s ease 0.65s; }
     #app.visible .panel { opacity: 1; transform: translateY(0); }
- 
-    .box-label {
-      font-size: 0.6rem; letter-spacing: 0.35em;
-      color: #ff6800; opacity: 0.5;
-      text-transform: uppercase; margin-bottom: 0.4rem;
-      display: flex; align-items: center; gap: 0.5rem;
-    }
- 
-    .box-label::after {
-      content: ''; flex: 1; height: 1px;
-      background: linear-gradient(90deg, rgba(255,104,0,0.3), transparent);
-    }
- 
-    textarea {
-      width: 100%; height: 130px;
-      background: #0d0d0d;
-      border: 1px solid #2a1500;
-      border-left: 2px solid #ff6800;
-      color: #ff9944;
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 0.85rem; line-height: 1.6;
-      padding: 1rem; resize: none; outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-      caret-color: #ff6800;
-    }
- 
+    .box-label { font-size: 0.6rem; letter-spacing: 0.35em; color: #ff6800; opacity: 0.5; text-transform: uppercase; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.5rem; }
+    .box-label::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(255,104,0,0.3), transparent); }
+    textarea { width: 100%; height: 130px; background: #0d0d0d; border: 1px solid #2a1500; border-left: 2px solid #ff6800; color: #ff9944; font-family: 'Share Tech Mono', monospace; font-size: 0.85rem; line-height: 1.6; padding: 1rem; resize: none; outline: none; transition: border-color 0.2s, box-shadow 0.2s; caret-color: #ff6800; }
     textarea::placeholder { color: rgba(255,104,0,0.2); }
- 
-    textarea:focus {
-      border-color: #ff6800;
-      box-shadow: 0 0 20px rgba(255,104,0,0.1), inset 0 0 20px rgba(255,104,0,0.03);
-    }
- 
+    textarea:focus { border-color: #ff6800; box-shadow: 0 0 20px rgba(255,104,0,0.1), inset 0 0 20px rgba(255,104,0,0.03); }
     .exec-wrap { display: flex; justify-content: center; margin: 1.2rem 0; }
- 
-    .exec-btn {
-      font-family: 'Orbitron', monospace;
-      font-size: 0.72rem; font-weight: 700;
-      letter-spacing: 0.25em; text-transform: uppercase;
-      color: #080808; background: #ff6800;
-      border: none; padding: 0.85rem 3rem;
-      position: relative; overflow: hidden;
-      clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
-      transition: all 0.2s;
-      box-shadow: 0 0 20px rgba(255,104,0,0.3);
-    }
- 
-    .exec-btn::before {
-      content: ''; position: absolute; inset: 0;
-      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
-      transform: translateX(-100%); transition: transform 0.4s;
-    }
- 
+    .exec-btn { font-family: 'Orbitron', monospace; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.25em; text-transform: uppercase; color: #080808; background: #ff6800; border: none; padding: 0.85rem 3rem; position: relative; overflow: hidden; clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%); transition: all 0.2s; box-shadow: 0 0 20px rgba(255,104,0,0.3); }
+    .exec-btn::before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%); transform: translateX(-100%); transition: transform 0.4s; }
     .exec-btn:hover { background: #ff8c00; box-shadow: 0 0 35px rgba(255,104,0,0.5); }
     .exec-btn:hover::before { transform: translateX(100%); }
     .exec-btn:active { transform: scale(0.97); }
- 
-    .output-box {
-      width: 100%; min-height: 130px;
-      background: #0d0d0d;
-      border: 1px solid #2a1500;
-      border-left: 2px solid rgba(255,104,0,0.3);
-      color: #ff6800;
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 0.82rem; line-height: 1.6;
-      padding: 1rem; word-break: break-all;
-      white-space: pre-wrap; position: relative;
-      transition: border-color 0.3s; 
-    }
- 
+    .output-box { width: 100%; min-height: 130px; background: #0d0d0d; border: 1px solid #2a1500; border-left: 2px solid rgba(255,104,0,0.3); color: #ff6800; font-family: 'Share Tech Mono', monospace; font-size: 0.82rem; line-height: 1.6; padding: 1rem; word-break: break-all; white-space: pre-wrap; position: relative; transition: border-color 0.3s; }
     .output-box.has-output { border-left-color: #ff6800; box-shadow: 0 0 20px rgba(255,104,0,0.07); }
     .output-placeholder { color: rgba(255,104,0,0.18); font-size: 0.78rem; }
- 
-    .copy-hint {
-      position: absolute; bottom: 0.5rem; right: 0.75rem;
-      font-size: 0.55rem; letter-spacing: 0.2em;
-      color: rgba(255,104,0,0.3); text-transform: uppercase;
-      opacity: 0; transition: opacity 0.2s;
-    }
- 
+    .copy-hint { position: absolute; bottom: 0.5rem; right: 0.75rem; font-size: 0.55rem; letter-spacing: 0.2em; color: rgba(255,104,0,0.3); text-transform: uppercase; opacity: 0; transition: opacity 0.2s; }
     .output-box.has-output:hover .copy-hint { opacity: 1; }
- 
-    .copied-flash {
-      position: absolute; inset: 0;
-      background: rgba(255,104,0,0.08);
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Orbitron', monospace; font-size: 0.7rem;
-      letter-spacing: 0.3em; color: #ff6800;
-      opacity: 0; pointer-events: none; transition: opacity 0.2s;
-    }
- 
+    .copied-flash { position: absolute; inset: 0; background: rgba(255,104,0,0.08); display: flex; align-items: center; justify-content: center; font-family: 'Orbitron', monospace; font-size: 0.7rem; letter-spacing: 0.3em; color: #ff6800; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
     .output-box.copied .copied-flash { opacity: 1; }
- 
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-    .cursor-blink {
-      display: inline-block; width: 8px; height: 1em;
-      background: #ff6800; margin-left: 2px;
-      vertical-align: text-bottom;
-      animation: blink 0.8s step-end infinite;
-    }
- 
-    .footer {
-      text-align: center; margin-top: 1.5rem;
-      font-size: 0.55rem; letter-spacing: 0.3em;
-      color: rgba(255,104,0,0.15); text-transform: uppercase;
-      opacity: 0; transition: opacity 0.5s ease 0.8s;
-    }
- 
+    .cursor-blink { display: inline-block; width: 8px; height: 1em; background: #ff6800; margin-left: 2px; vertical-align: text-bottom; animation: blink 0.8s step-end infinite; }
+    .footer { text-align: center; margin-top: 1.5rem; font-size: 0.55rem; letter-spacing: 0.3em; color: rgba(255,104,0,0.15); text-transform: uppercase; opacity: 0; transition: opacity 0.5s ease 0.8s; }
     #app.visible .footer { opacity: 1; }
- 
-    .scanlines {
-      position: fixed; inset: 0;
-      background: repeating-linear-gradient(
-        0deg, transparent, transparent 3px,
-        rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px
-      );
-      pointer-events: none; z-index: 1;
-    }
+    .scanlines { position: fixed; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px); pointer-events: none; z-index: 1; }
   </style>
 </head>
 <body>
- 
   <canvas id="fx-canvas"></canvas>
- 
   <div id="app">
     <div class="scanlines"></div>
     <div class="container">
       <div class="header">
         <div class="header-title">CIPHER</div>
         <div class="header-line"></div>
-        <div class="header-sub">AES-256 // end-to-end // zero trace // By HardiCar</div>
+        <div class="header-sub">AES-256 // end-to-end // zero trace // By Dr. Sphere</div>
       </div>
- 
       <div class="mode-bar">
         <button class="mode-btn active" id="encryptBtn" onclick="setMode('encrypt')"><span>⬡ Encrypt</span></button>
         <button class="mode-btn" id="decryptBtn" onclick="setMode('decrypt')"><span>⬡ Decrypt</span></button>
       </div>
- 
       <div class="panel">
         <div class="box-label">input message</div>
         <textarea id="inputBox" placeholder="Enter message here..."></textarea>
- 
         <div class="exec-wrap">
           <button class="exec-btn" onclick="execute()"><span id="btnLabel">ENCRYPT</span></button>
         </div>
- 
         <div class="box-label">output</div>
         <div class="output-box" id="outputBox" onclick="copyOutput()">
           <span class="output-placeholder" id="outputPlaceholder">// output will appear here</span>
@@ -295,157 +81,166 @@
           <div class="copied-flash">COPIED</div>
         </div>
       </div>
- 
-      <div class="footer">type "reveal" to show // type "goodbye" to hide // ctrl+enter to run</div>
+      <div class="footer">type "sphere" to show // type "goodbye" to hide //</div>
     </div>
   </div>
- 
+
   <script>
-    // ─────────────────────────────────────────────
-    //  CANVAS SETUP — always full screen
-    // ─────────────────────────────────────────────
     const canvas = document.getElementById('fx-canvas');
     const ctx = canvas.getContext('2d');
- 
-    function fitCanvas() {
-      canvas.width  = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
+
+    function fitCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     fitCanvas();
     window.addEventListener('resize', fitCanvas);
- 
-    // ─────────────────────────────────────────────
-    //  SKULL PIXEL MAP (16×16)
-    // ─────────────────────────────────────────────
+
+    const SKULL_W = 32, SKULL_H = 40;
     const SKULL = [
-      [0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0],
-      [0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0],
-      [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
-      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-      [1,1,0,0,1,1,1,1,1,1,1,1,0,0,1,1],
-      [1,1,0,0,1,1,1,1,1,1,1,1,0,0,1,1],
-      [1,1,0,0,1,1,1,1,1,1,1,1,0,0,1,1],
-      [1,1,1,1,1,0,1,1,1,1,0,1,1,1,1,1],
-      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-      [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
-      [0,1,1,0,1,1,1,1,1,1,1,1,0,1,1,0],
-      [0,1,0,1,0,1,1,1,1,1,1,0,1,0,1,0],
-      [0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0],
-      [0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0],
-      [0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0],
+      [0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0],
+      [0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0],
+      [0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0],
+      [0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0],
+      [0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0],
+      [0,0,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,0,0],
+      [0,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,0],
+      [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
+      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+      [1,1,1,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,1,1,1],
+      [1,1,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,1,1],
+      [1,1,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,1,1],
+      [1,1,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,1,1],
+      [1,1,1,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,1,1,1],
+      [1,1,1,1,1,0,0,0,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,0,0,0,1,1,1,1,1,1],
+      [1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1],
+      [1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1],
+      [1,1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1],
+      [1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1],
+      [1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1],
+      [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
+      [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
+      [0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0],
+      [0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0],
+      [0,0,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,0,0],
+      [0,0,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,0,0],
+      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+      [0,0,0,1,1,0,1,1,0,1,1,0,1,0,1,0,1,0,1,0,1,1,0,1,1,0,1,1,0,1,0,0],
+      [0,0,0,1,1,0,1,1,0,1,1,0,1,0,1,0,1,0,1,0,1,1,0,1,1,0,1,1,0,1,0,0],
+      [0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0],
+      [0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0],
+      [0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     ];
- 
-    // ─────────────────────────────────────────────
-    //  SKULL REVEAL ANIMATION
-    //  Pixels fly in from random positions → form skull → zoom to fill screen
-    // ─────────────────────────────────────────────
+
     function runSkullReveal(onDone) {
       fitCanvas();
       const W = canvas.width, H = canvas.height;
- 
       const ROWS = SKULL.length, COLS = SKULL[0].length;
-      const SKULL_SIZE = Math.min(W, H) * 0.35;
-      const CELL = SKULL_SIZE / COLS;
- 
-      const cx = W / 2;
-      const cy = H / 2;
-      const skullLeft = cx - SKULL_SIZE / 2;
-      const skullTop  = cy - SKULL_SIZE / 2;
- 
-      // Build pixel targets
+      const SKULL_SIZE = Math.min(W, H) * 0.72;
+      const CELL = SKULL_SIZE / Math.max(ROWS, COLS);
+      const cx = W / 2, cy = H / 2;
+      const skullLeft = cx - (COLS * CELL) / 2;
+      const skullTop  = cy - (ROWS * CELL) / 2;
+
       const pixels = [];
       for (let r = 0; r < ROWS; r++) {
         for (let c = 0; c < COLS; c++) {
           if (!SKULL[r][c]) continue;
+          const isTeeth = (r >= 27 && r <= 28) || (r >= 31 && r <= 32);
+          const isCrack = (r === 6 && (c === 12 || c === 21)) || (r === 7 && (c === 11 || c === 20)) || (r === 8 && (c === 15 || c === 16));
+          let pr, pg, pb;
+          if (isTeeth) {
+            pr = 220 + Math.floor(Math.random()*35); pg = 200 + Math.floor(Math.random()*30); pb = 170 + Math.floor(Math.random()*30);
+          } else if (isCrack) {
+            pr = 40 + Math.floor(Math.random()*20); pg = 30; pb = 20;
+          } else {
+            const shade = 0.7 + Math.random() * 0.3;
+            pr = Math.floor((170 + Math.random()*40) * shade);
+            pg = Math.floor((150 + Math.random()*30) * shade);
+            pb = Math.floor((120 + Math.random()*25) * shade);
+          }
           pixels.push({
-            tx: skullLeft + c * CELL,
-            ty: skullTop  + r * CELL,
-            x: Math.random() * W,
-            y: Math.random() * H,
-            size: CELL,
-            speed: 0.04 + Math.random() * 0.05,
-            // orange shades
-            r: 200 + Math.floor(Math.random() * 55),
-            g: 60  + Math.floor(Math.random() * 60),
-            b: 0,
+            tx: skullLeft + c * CELL, ty: skullTop + r * CELL,
+            x: Math.random() * W, y: Math.random() * H,
+            size: CELL, pr, pg, pb, isTeeth, isCrack,
           });
         }
       }
- 
-      const PHASE1 = 1400; // fly-in duration ms
-      const PHASE2 = 600;  // hold duration
-      const PHASE3 = 500;  // zoom-out to fill
-      const TOTAL  = PHASE1 + PHASE2 + PHASE3;
-      const start  = performance.now();
+
+      const PHASE1 = 1600, PHASE2 = 700, PHASE3 = 500;
+      const TOTAL = PHASE1 + PHASE2 + PHASE3;
+      const start = performance.now();
       let animId;
- 
+
       function frame(now) {
         const elapsed = now - start;
- 
-        // Black background
         ctx.fillStyle = '#080808';
         ctx.fillRect(0, 0, W, H);
- 
+
         if (elapsed < PHASE1) {
-          // Phase 1: pixels flying toward skull positions
           const t = elapsed / PHASE1;
           pixels.forEach(p => {
             const ease = 1 - Math.pow(1 - t, 3);
             const px = p.x + (p.tx - p.x) * ease;
             const py = p.y + (p.ty - p.y) * ease;
-            const alpha = 0.4 + ease * 0.6;
-            ctx.fillStyle = `rgba(${p.r},${p.g},${p.b},${alpha})`;
+            const alpha = 0.3 + ease * 0.7;
+            ctx.fillStyle = `rgba(${p.pr},${p.pg},${p.pb},${alpha})`;
             ctx.fillRect(px, py, p.size, p.size);
           });
- 
-          // Trailing particles
-          for (let i = 0; i < 30; i++) {
+          for (let i = 0; i < 25; i++) {
             const p = pixels[Math.floor(Math.random() * pixels.length)];
             const ease = 1 - Math.pow(1 - t, 3);
             const px = p.x + (p.tx - p.x) * ease;
             const py = p.y + (p.ty - p.y) * ease;
-            ctx.fillStyle = `rgba(255,140,0,${Math.random() * 0.4})`;
-            ctx.fillRect(px + (Math.random()-0.5)*20, py + (Math.random()-0.5)*20, 2, 2);
+            ctx.fillStyle = `rgba(200,160,100,${Math.random() * 0.35})`;
+            ctx.fillRect(px + (Math.random()-0.5)*30, py + (Math.random()-0.5)*30, 2, 2);
           }
- 
         } else if (elapsed < PHASE1 + PHASE2) {
-          // Phase 2: hold skull — pulsing glow
-          const pulse = 0.7 + 0.3 * Math.sin((elapsed - PHASE1) / 80);
+          const t = (elapsed - PHASE1) / PHASE2;
+          const beat = Math.sin(t * Math.PI * 5) * 0.5 + 0.5;
+          const pulse = 0.75 + beat * 0.25;
           pixels.forEach(p => {
-            ctx.fillStyle = `rgba(${p.r},${p.g},${p.b},${pulse})`;
+            ctx.fillStyle = `rgba(${p.pr},${p.pg},${p.pb},${pulse})`;
             ctx.fillRect(p.tx, p.ty, p.size, p.size);
           });
- 
-          // Orange glow behind skull
-          const grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, SKULL_SIZE * 0.8);
-          grd.addColorStop(0, `rgba(255,104,0,${0.15 * pulse})`);
+          const eyeGlow = ctx.createRadialGradient(cx - SKULL_SIZE*0.18, cy - SKULL_SIZE*0.05, 0, cx - SKULL_SIZE*0.18, cy - SKULL_SIZE*0.05, SKULL_SIZE * 0.15);
+          eyeGlow.addColorStop(0, `rgba(200,0,0,${0.35 * beat})`);
+          eyeGlow.addColorStop(1, 'rgba(200,0,0,0)');
+          ctx.fillStyle = eyeGlow;
+          ctx.fillRect(0, 0, W, H);
+          const eyeGlow2 = ctx.createRadialGradient(cx + SKULL_SIZE*0.18, cy - SKULL_SIZE*0.05, 0, cx + SKULL_SIZE*0.18, cy - SKULL_SIZE*0.05, SKULL_SIZE * 0.15);
+          eyeGlow2.addColorStop(0, `rgba(200,0,0,${0.35 * beat})`);
+          eyeGlow2.addColorStop(1, 'rgba(200,0,0,0)');
+          ctx.fillStyle = eyeGlow2;
+          ctx.fillRect(0, 0, W, H);
+          const grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, SKULL_SIZE * 0.75);
+          grd.addColorStop(0, `rgba(255,104,0,${0.12 * pulse})`);
           grd.addColorStop(1, 'rgba(255,104,0,0)');
           ctx.fillStyle = grd;
           ctx.fillRect(0, 0, W, H);
- 
         } else {
-          // Phase 3: skull pixels zoom outward to fill screen → flash white → done
           const t = (elapsed - PHASE1 - PHASE2) / PHASE3;
           const ease = t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
- 
           pixels.forEach(p => {
-            const scale = 1 + ease * 60;
+            const scale = 1 + ease * 50;
             const px = cx + (p.tx + p.size/2 - cx) * scale - (p.size * scale) / 2;
             const py = cy + (p.ty + p.size/2 - cy) * scale - (p.size * scale) / 2;
-            const alpha = 1 - ease * 0.8;
-            ctx.fillStyle = `rgba(${p.r},${p.g},${p.b},${alpha})`;
+            const alpha = 1 - ease * 0.9;
+            ctx.fillStyle = `rgba(${p.pr},${p.pg},${p.pb},${alpha})`;
             ctx.fillRect(px, py, p.size * scale, p.size * scale);
           });
- 
-          // White flash at end
-          if (t > 0.6) {
-            const flashAlpha = (t - 0.6) / 0.4;
+          if (t > 0.5) {
+            const flashAlpha = (t - 0.5) / 0.5;
             ctx.fillStyle = `rgba(8,8,8,${flashAlpha})`;
             ctx.fillRect(0, 0, W, H);
           }
         }
- 
+
         if (elapsed < TOTAL) {
           animId = requestAnimationFrame(frame);
         } else {
@@ -454,67 +249,138 @@
           onDone();
         }
       }
- 
       animId = requestAnimationFrame(frame);
     }
- 
-    // ─────────────────────────────────────────────
-    //  WAVE WASH CLOSE ANIMATION
-    //  White wave sweeps left → right across the screen
-    // ─────────────────────────────────────────────
-    function runWaveClose(onDone) {
+
+    function runVerticalCrackClose(onDone) {
       fitCanvas();
       const W = canvas.width, H = canvas.height;
-      const DURATION = 1200;
+      const DURATION = 2000;
       const start = performance.now();
       let animId;
- 
-      // Capture the app as a snapshot by drawing a dark rectangle
-      // (since app is behind canvas, we just wash over it)
+
+      function genCrack(startX) {
+        const pts = [{x: startX, y: 0}];
+        let x = startX;
+        for (let y = 0; y <= H; y += 18) {
+          x += (Math.random() - 0.5) * 60;
+          x = Math.max(10, Math.min(W - 10, x));
+          pts.push({x, y});
+        }
+        pts.push({x, y: H + 20});
+        return pts;
+      }
+
+      const cracks = [genCrack(W * 0.35), genCrack(W * 0.55), genCrack(W * 0.72)];
+
+      function drawCrack(pts, progress, glowAlpha, lineWidth) {
+        const limit = Math.floor(pts.length * progress);
+        if (limit < 2) return;
+        ctx.beginPath();
+        ctx.moveTo(pts[0].x, pts[0].y);
+        for (let i = 1; i < limit; i++) ctx.lineTo(pts[i].x, pts[i].y);
+        ctx.strokeStyle = `rgba(255,180,50,${glowAlpha * 1.5})`;
+        ctx.lineWidth = lineWidth * 4;
+        ctx.shadowColor = 'rgba(255,120,0,0.9)';
+        ctx.shadowBlur = 20;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = `rgba(255,240,180,${glowAlpha})`;
+        ctx.lineWidth = lineWidth;
+        ctx.stroke();
+      }
+
+      function crackX(pts, y) {
+        for (let i = 0; i < pts.length - 1; i++) {
+          if (pts[i].y <= y && pts[i+1].y > y) {
+            const frac = (y - pts[i].y) / (pts[i+1].y - pts[i].y);
+            return pts[i].x + (pts[i+1].x - pts[i].x) * frac;
+          }
+        }
+        return pts[pts.length-1].x;
+      }
+
       function frame(now) {
         const elapsed = now - start;
         const t = Math.min(elapsed / DURATION, 1);
- 
         ctx.clearRect(0, 0, W, H);
- 
-        // Draw dark bg first (app underneath)
-        ctx.fillStyle = '#080808';
-        ctx.fillRect(0, 0, W, H);
- 
-        // Wave front position
-        const waveX = t * (W + 200) - 100;
- 
-        // Draw white "already washed" area to the left
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, waveX, H);
- 
-        // Wave edge — curved, foamy
-        const waveWidth = 120;
-        for (let y = 0; y < H; y += 2) {
-          const wobble = Math.sin(y * 0.04 + elapsed * 0.008) * 18
-                       + Math.sin(y * 0.015 + elapsed * 0.005) * 10;
-          const edgeX = waveX + wobble;
- 
-          // Foam gradient at wave edge
-          const grad = ctx.createLinearGradient(edgeX - waveWidth, y, edgeX + 20, y);
-          grad.addColorStop(0, 'rgba(255,255,255,1)');
-          grad.addColorStop(0.6, 'rgba(255,200,100,0.6)');
-          grad.addColorStop(0.85, 'rgba(255,104,0,0.3)');
-          grad.addColorStop(1, 'rgba(255,104,0,0)');
-          ctx.fillStyle = grad;
-          ctx.fillRect(edgeX - waveWidth, y, waveWidth + 20, 2);
+
+        const crackProgress = Math.min(t / 0.35, 1);
+        const floodT = t < 0.35 ? 0 : (t - 0.35) / 0.65;
+        const floodEase = floodT < 0.5 ? 2*floodT*floodT : -1+(4-2*floodT)*floodT;
+
+        if (floodT > 0) {
+          const leftCrack = cracks[0];
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          for (let y = 0; y <= H; y += 4) {
+            const cx2 = crackX(leftCrack, y);
+            ctx.lineTo(cx2 * floodEase, y);
+          }
+          ctx.lineTo(0, H);
+          ctx.closePath();
+          const lGrad = ctx.createLinearGradient(0, 0, W * 0.4, 0);
+          lGrad.addColorStop(0, `rgba(8,8,8,${floodEase})`);
+          lGrad.addColorStop(0.8, `rgba(8,8,8,${floodEase * 0.85})`);
+          lGrad.addColorStop(1, 'rgba(8,8,8,0)');
+          ctx.fillStyle = lGrad;
+          ctx.fill();
+
+          const rightCrack = cracks[2];
+          ctx.beginPath();
+          ctx.moveTo(W, 0);
+          for (let y = 0; y <= H; y += 4) {
+            const cx2 = crackX(rightCrack, y);
+            ctx.lineTo(cx2 + (W - cx2) * (1 - floodEase), y);
+          }
+          ctx.lineTo(W, H);
+          ctx.closePath();
+          const rGrad = ctx.createLinearGradient(W * 0.6, 0, W, 0);
+          rGrad.addColorStop(0, 'rgba(8,8,8,0)');
+          rGrad.addColorStop(0.2, `rgba(8,8,8,${floodEase * 0.85})`);
+          rGrad.addColorStop(1, `rgba(8,8,8,${floodEase})`);
+          ctx.fillStyle = rGrad;
+          ctx.fill();
+
+          for (let seg = 0; seg < 2; seg++) {
+            const c1 = cracks[seg], c2 = cracks[seg + 1];
+            if (floodEase > 0.3) {
+              const segT = Math.min((floodEase - 0.3) / 0.7, 1);
+              ctx.beginPath();
+              for (let y = 0; y <= H; y += 4) {
+                const x1 = crackX(c1, y), x2 = crackX(c2, y);
+                const mid = (x1 + x2) / 2;
+                const hw = (x2 - x1) / 2 * segT;
+                if (y === 0) ctx.moveTo(mid - hw, y);
+                else ctx.lineTo(mid - hw, y);
+              }
+              for (let y = H; y >= 0; y -= 4) {
+                const x1 = crackX(c1, y), x2 = crackX(c2, y);
+                const mid = (x1 + x2) / 2;
+                const hw = (x2 - x1) / 2 * segT;
+                ctx.lineTo(mid + hw, y);
+              }
+              ctx.closePath();
+              ctx.fillStyle = `rgba(8,8,8,${segT * 0.9})`;
+              ctx.fill();
+            }
+          }
         }
- 
-        // Sparkle foam dots near wave front
-        for (let i = 0; i < 20; i++) {
-          const sy = Math.random() * H;
-          const wobble = Math.sin(sy * 0.04 + elapsed * 0.008) * 18;
-          const sx = waveX + wobble + (Math.random() - 0.5) * 40;
-          const alpha = Math.random() * 0.8;
-          ctx.fillStyle = `rgba(255,220,150,${alpha})`;
-          ctx.fillRect(sx, sy, Math.random() * 3 + 1, Math.random() * 3 + 1);
+
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        cracks.forEach((pts, i) => {
+          const delay = i * 0.08;
+          const prog = Math.max(0, Math.min((crackProgress - delay) / (1 - delay), 1));
+          drawCrack(pts, prog, 0.9 - floodT * 0.7, 1.5);
+        });
+
+        if (t > 0.85) {
+          const blackAlpha = (t - 0.85) / 0.15;
+          ctx.fillStyle = `rgba(8,8,8,${blackAlpha})`;
+          ctx.fillRect(0, 0, W, H);
         }
- 
+
         if (t < 1) {
           animId = requestAnimationFrame(frame);
         } else {
@@ -523,68 +389,48 @@
           onDone();
         }
       }
- 
       animId = requestAnimationFrame(frame);
     }
- 
-    // ─────────────────────────────────────────────
-    //  KEY LISTENER
-    // ─────────────────────────────────────────────
-    let typed = '';
-    let revealed = false;
-    let transitioning = false;
- 
+
+    let typed = '', revealed = false, transitioning = false;
+
     document.addEventListener('keydown', (e) => {
       if (document.activeElement === document.getElementById('inputBox')) return;
       typed += e.key.toLowerCase();
-      if (typed.length > 7) typed = typed.slice(-7);
- 
-      if (typed.endsWith('reveal') && !revealed && !transitioning) {
-        revealed = true; transitioning = true;
-        triggerReveal();
+      if (typed.length > 6) typed = typed.slice(-6);
+      if (typed.endsWith('sphere') && !revealed && !transitioning) {
+        revealed = true; transitioning = true; triggerReveal();
       }
       if (typed.endsWith('goodbye') && revealed && !transitioning) {
-        transitioning = true;
-        triggerClose();
+        transitioning = true; triggerClose();
       }
     });
- 
+
     function triggerReveal() {
-      // White base
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = '#080808';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
- 
       runSkullReveal(() => {
         document.getElementById('app').classList.add('visible');
-        // Clear canvas so app shows through
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        transitioning = false;
-        typed = '';
+        transitioning = false; typed = '';
       });
     }
- 
+
     function triggerClose() {
-      const app = document.getElementById('app');
- 
-      runWaveClose(() => {
-        app.classList.remove('visible');
+      runVerticalCrackClose(() => {
+        document.getElementById('app').classList.remove('visible');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        // Set body back to white
         document.body.style.background = '#ffffff';
         revealed = false; transitioning = false; typed = '';
         document.getElementById('inputBox').value = '';
         clearOutput();
       });
     }
- 
-    // Keep white background behind canvas when hidden
+
     document.body.style.background = '#ffffff';
- 
-    // ─────────────────────────────────────────────
-    //  CIPHER LOGIC
-    // ─────────────────────────────────────────────
+
     let mode = 'encrypt';
- 
+
     function setMode(m) {
       mode = m;
       document.getElementById('encryptBtn').classList.toggle('active', m === 'encrypt');
@@ -592,35 +438,31 @@
       document.getElementById('btnLabel').textContent = m.toUpperCase();
       document.getElementById('inputBox').value = '';
       clearOutput();
-      document.getElementById('inputBox').placeholder =
-        m === 'encrypt' ? 'Enter message to encrypt...' : 'Enter encrypted text to decrypt...';
+      document.getElementById('inputBox').placeholder = m === 'encrypt' ? 'Enter message to encrypt...' : 'Enter encrypted text to decrypt...';
     }
- 
+
     const SECRET = 'CIPHER_VOID_STATIC_KEY_2024_X9Z';
- 
+
     async function deriveKey(secret) {
       const enc = new TextEncoder();
       const km = await crypto.subtle.importKey('raw', enc.encode(secret), { name: 'PBKDF2' }, false, ['deriveKey']);
-      return crypto.subtle.deriveKey(
-        { name: 'PBKDF2', salt: enc.encode('cipher_salt_v1'), iterations: 100000, hash: 'SHA-256' },
-        km, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']
-      );
+      return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: enc.encode('cipher_salt_v1'), iterations: 100000, hash: 'SHA-256' }, km, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
     }
- 
+
     const bufToHex = buf => Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
     function hexToBuf(hex) {
       const b = new Uint8Array(hex.length / 2);
       for (let i = 0; i < hex.length; i += 2) b[i/2] = parseInt(hex.substr(i, 2), 16);
       return b;
     }
- 
+
     async function encryptMsg(pt) {
       const key = await deriveKey(SECRET);
       const iv = crypto.getRandomValues(new Uint8Array(12));
       const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(pt));
       return bufToHex(iv) + ':' + bufToHex(ct);
     }
- 
+
     async function decryptMsg(enc) {
       const [ivH, ctH] = enc.split(':');
       if (!ivH || !ctH) throw new Error('Invalid format');
@@ -628,51 +470,36 @@
       const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: hexToBuf(ivH) }, key, hexToBuf(ctH));
       return new TextDecoder().decode(pt);
     }
- 
+
     async function execute() {
       const input = document.getElementById('inputBox').value.trim();
       if (!input) return;
       const btn = document.querySelector('.exec-btn');
       btn.textContent = '...'; btn.disabled = true;
-      try {
-        typeOutput(mode === 'encrypt' ? await encryptMsg(input) : await decryptMsg(input));
-      } catch(e) {
-        typeOutput('// ERROR: ' + (e.message || 'failed'));
-      }
+      try { typeOutput(mode === 'encrypt' ? await encryptMsg(input) : await decryptMsg(input)); }
+      catch(e) { typeOutput('// ERROR: ' + (e.message || 'failed')); }
       btn.textContent = mode.toUpperCase(); btn.disabled = false;
     }
- 
+
     function typeOutput(text) {
       const box = document.getElementById('outputBox');
-      const ph  = document.getElementById('outputPlaceholder');
-      const ot  = document.getElementById('outputText');
-      ph.style.display = 'none';
-      ot.style.display = 'inline';
-      ot.textContent = '';
-      box.classList.add('has-output');
-      box.classList.remove('copied');
-      const cur = document.createElement('span');
-      cur.className = 'cursor-blink';
-      ot.after(cur);
+      const ph = document.getElementById('outputPlaceholder');
+      const ot = document.getElementById('outputText');
+      ph.style.display = 'none'; ot.style.display = 'inline'; ot.textContent = '';
+      box.classList.add('has-output'); box.classList.remove('copied');
+      const cur = document.createElement('span'); cur.className = 'cursor-blink'; ot.after(cur);
       let i = 0;
       const spd = Math.max(8, Math.min(30, 1500 / text.length));
-      const iv = setInterval(() => {
-        ot.textContent += text[i++];
-        if (i >= text.length) { clearInterval(iv); cur.remove(); }
-      }, spd);
+      const iv = setInterval(() => { ot.textContent += text[i++]; if (i >= text.length) { clearInterval(iv); cur.remove(); } }, spd);
     }
- 
+
     function clearOutput() {
-      const box = document.getElementById('outputBox');
-      const ph  = document.getElementById('outputPlaceholder');
-      const ot  = document.getElementById('outputText');
-      ph.style.display = 'inline';
-      ot.style.display = 'none';
-      ot.textContent = '';
+      const box = document.getElementById('outputBox'), ph = document.getElementById('outputPlaceholder'), ot = document.getElementById('outputText');
+      ph.style.display = 'inline'; ot.style.display = 'none'; ot.textContent = '';
       box.classList.remove('has-output', 'copied');
       box.querySelectorAll('.cursor-blink').forEach(c => c.remove());
     }
- 
+
     function copyOutput() {
       const text = document.getElementById('outputText').textContent;
       if (!text) return;
@@ -682,7 +509,7 @@
         setTimeout(() => box.classList.remove('copied'), 1000);
       });
     }
- 
+
     document.getElementById('inputBox').addEventListener('keydown', e => {
       if (e.key === 'Enter' && e.ctrlKey) execute();
     });
