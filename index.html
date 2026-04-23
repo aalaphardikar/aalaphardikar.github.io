@@ -21,7 +21,7 @@
     .header-sub { font-size: 0.65rem; letter-spacing: 0.4em; color: #ff6800; opacity: 0.4; text-transform: uppercase; }
     .mode-bar { display: flex; gap: 1px; margin-bottom: 1.5rem; background: #1a0a00; border: 1px solid #2a1500; padding: 4px; opacity: 0; transform: translateY(10px); transition: all 0.5s ease 0.5s; }
     #app.visible .mode-bar { opacity: 1; transform: translateY(0); }
-    .mode-btn { flex: 1; font-family: 'Orbitron', monospace; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; padding: 0.7rem; background: transparent; border: none; color: #ff6800; opacity: 0.35; transition: all 0.25s; position: relative; overflow: hidden; }
+    .mode-btn { flex: 1; font-family: 'Orbitron', monospace; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; padding: 0.7rem; background: transparent; border: none; color: #ff6800; opacity: 0.35; transition: all 0.25s; position: relative; overflow: hidden; cursor: pointer; }
     .mode-btn::before { content: ''; position: absolute; inset: 0; background: #ff6800; opacity: 0; transition: opacity 0.25s; }
     .mode-btn span { position: relative; z-index: 1; }
     .mode-btn.active { opacity: 1; color: #080808; }
@@ -34,12 +34,12 @@
     textarea::placeholder { color: rgba(255,104,0,0.2); }
     textarea:focus { border-color: #ff6800; box-shadow: 0 0 20px rgba(255,104,0,0.1), inset 0 0 20px rgba(255,104,0,0.03); }
     .exec-wrap { display: flex; justify-content: center; margin: 1.2rem 0; }
-    .exec-btn { font-family: 'Orbitron', monospace; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.25em; text-transform: uppercase; color: #080808; background: #ff6800; border: none; padding: 0.85rem 3rem; position: relative; overflow: hidden; clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%); transition: all 0.2s; box-shadow: 0 0 20px rgba(255,104,0,0.3); }
+    .exec-btn { font-family: 'Orbitron', monospace; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.25em; text-transform: uppercase; color: #080808; background: #ff6800; border: none; padding: 0.85rem 3rem; position: relative; overflow: hidden; clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%); transition: all 0.2s; box-shadow: 0 0 20px rgba(255,104,0,0.3); cursor: pointer; }
     .exec-btn::before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%); transform: translateX(-100%); transition: transform 0.4s; }
     .exec-btn:hover { background: #ff8c00; box-shadow: 0 0 35px rgba(255,104,0,0.5); }
     .exec-btn:hover::before { transform: translateX(100%); }
     .exec-btn:active { transform: scale(0.97); }
-    .output-box { width: 100%; min-height: 130px; background: #0d0d0d; border: 1px solid #2a1500; border-left: 2px solid rgba(255,104,0,0.3); color: #ff6800; font-family: 'Share Tech Mono', monospace; font-size: 0.82rem; line-height: 1.6; padding: 1rem; word-break: break-all; white-space: pre-wrap; position: relative; transition: border-color 0.3s; }
+    .output-box { width: 100%; min-height: 130px; background: #0d0d0d; border: 1px solid #2a1500; border-left: 2px solid rgba(255,104,0,0.3); color: #ff6800; font-family: 'Share Tech Mono', monospace; font-size: 0.82rem; line-height: 1.6; padding: 1rem; word-break: break-all; white-space: pre-wrap; position: relative; transition: border-color 0.3s; cursor: pointer; }
     .output-box.has-output { border-left-color: #ff6800; box-shadow: 0 0 20px rgba(255,104,0,0.07); }
     .output-placeholder { color: rgba(255,104,0,0.18); font-size: 0.78rem; }
     .copy-hint { position: absolute; bottom: 0.5rem; right: 0.75rem; font-size: 0.55rem; letter-spacing: 0.2em; color: rgba(255,104,0,0.3); text-transform: uppercase; opacity: 0; transition: opacity 0.2s; }
@@ -65,11 +65,11 @@
       </div>
       <div class="mode-bar">
         <button class="mode-btn active" id="encryptBtn" onclick="setMode('encrypt')"><span>⬡ Encrypt</span></button>
-        <button class="mode-btn" id="decryptBtn" onclick="setMode('Decrypt Message')"><span>⬡ Decrypt Message</span></button>
+        <button class="mode-btn" id="decryptBtn" onclick="setMode('decrypt')"><span>⬡ Decrypt Message</span></button>
       </div>
       <div class="panel">
         <div class="box-label">input message</div>
-        <textarea id="inputBox" placeholder="Enter message here..."></textarea>
+        <textarea id="inputBox" placeholder="Enter your message. Do not worry; we will keep it safe..."></textarea>
         <div class="exec-wrap">
           <button class="exec-btn" onclick="execute()"><span id="btnLabel">ENCRYPT</span></button>
         </div>
@@ -81,7 +81,7 @@
           <div class="copied-flash">COPIED</div>
         </div>
       </div>
-      <div class="footer">type "sphere" to show // type "goodbye" to hide //</div>
+      <div class="footer">type "sphere" to show // type "goodbye" to hide // ctrl+enter to run</div>
     </div>
   </div>
 
@@ -93,7 +93,6 @@
     fitCanvas();
     window.addEventListener('resize', fitCanvas);
 
-    const SKULL_W = 32, SKULL_H = 40;
     const SKULL = [
       [0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0],
       [0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0],
@@ -155,14 +154,17 @@
           const isCrack = (r === 6 && (c === 12 || c === 21)) || (r === 7 && (c === 11 || c === 20)) || (r === 8 && (c === 15 || c === 16));
           let pr, pg, pb;
           if (isTeeth) {
+            // Teeth: sickly cream/ivory
             pr = 220 + Math.floor(Math.random()*35); pg = 200 + Math.floor(Math.random()*30); pb = 170 + Math.floor(Math.random()*30);
           } else if (isCrack) {
+            // Cracks: near black
             pr = 40 + Math.floor(Math.random()*20); pg = 30; pb = 20;
           } else {
-            const shade = 0.7 + Math.random() * 0.3;
-            pr = Math.floor((170 + Math.random()*40) * shade);
-            pg = Math.floor((150 + Math.random()*30) * shade);
-            pb = Math.floor((120 + Math.random()*25) * shade);
+            // Bone: orange-tinted warm bone color (matching the app's #ff6800 theme)
+            const shade = 0.55 + Math.random() * 0.45;
+            pr = Math.floor((255) * shade);
+            pg = Math.floor((104 + Math.random()*40) * shade);
+            pb = Math.floor((Math.random()*20) * shade);
           }
           pixels.push({
             tx: skullLeft + c * CELL, ty: skullTop + r * CELL,
@@ -194,10 +196,10 @@
           });
           for (let i = 0; i < 25; i++) {
             const p = pixels[Math.floor(Math.random() * pixels.length)];
-            const ease = 1 - Math.pow(1 - t, 3);
+            const ease = 1 - Math.pow(1 - (elapsed / PHASE1), 3);
             const px = p.x + (p.tx - p.x) * ease;
             const py = p.y + (p.ty - p.y) * ease;
-            ctx.fillStyle = `rgba(200,160,100,${Math.random() * 0.35})`;
+            ctx.fillStyle = `rgba(255,120,0,${Math.random() * 0.35})`;
             ctx.fillRect(px + (Math.random()-0.5)*30, py + (Math.random()-0.5)*30, 2, 2);
           }
         } else if (elapsed < PHASE1 + PHASE2) {
@@ -208,6 +210,7 @@
             ctx.fillStyle = `rgba(${p.pr},${p.pg},${p.pb},${pulse})`;
             ctx.fillRect(p.tx, p.ty, p.size, p.size);
           });
+          // Red glow from eye sockets
           const eyeGlow = ctx.createRadialGradient(cx - SKULL_SIZE*0.18, cy - SKULL_SIZE*0.05, 0, cx - SKULL_SIZE*0.18, cy - SKULL_SIZE*0.05, SKULL_SIZE * 0.15);
           eyeGlow.addColorStop(0, `rgba(200,0,0,${0.35 * beat})`);
           eyeGlow.addColorStop(1, 'rgba(200,0,0,0)');
@@ -218,8 +221,9 @@
           eyeGlow2.addColorStop(1, 'rgba(200,0,0,0)');
           ctx.fillStyle = eyeGlow2;
           ctx.fillRect(0, 0, W, H);
+          // Orange halo
           const grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, SKULL_SIZE * 0.75);
-          grd.addColorStop(0, `rgba(255,104,0,${0.12 * pulse})`);
+          grd.addColorStop(0, `rgba(255,104,0,${0.15 * pulse})`);
           grd.addColorStop(1, 'rgba(255,104,0,0)');
           ctx.fillStyle = grd;
           ctx.fillRect(0, 0, W, H);
@@ -235,8 +239,7 @@
             ctx.fillRect(px, py, p.size * scale, p.size * scale);
           });
           if (t > 0.5) {
-            const flashAlpha = (t - 0.5) / 0.5;
-            ctx.fillStyle = `rgba(8,8,8,${flashAlpha})`;
+            ctx.fillStyle = `rgba(8,8,8,${(t - 0.5) / 0.5})`;
             ctx.fillRect(0, 0, W, H);
           }
         }
@@ -314,8 +317,7 @@
           ctx.beginPath();
           ctx.moveTo(0, 0);
           for (let y = 0; y <= H; y += 4) {
-            const cx2 = crackX(leftCrack, y);
-            ctx.lineTo(cx2 * floodEase, y);
+            ctx.lineTo(crackX(leftCrack, y) * floodEase, y);
           }
           ctx.lineTo(0, H);
           ctx.closePath();
@@ -330,8 +332,8 @@
           ctx.beginPath();
           ctx.moveTo(W, 0);
           for (let y = 0; y <= H; y += 4) {
-            const cx2 = crackX(rightCrack, y);
-            ctx.lineTo(cx2 + (W - cx2) * (1 - floodEase), y);
+            const rx = crackX(rightCrack, y);
+            ctx.lineTo(rx + (W - rx) * (1 - floodEase), y);
           }
           ctx.lineTo(W, H);
           ctx.closePath();
@@ -349,15 +351,13 @@
               ctx.beginPath();
               for (let y = 0; y <= H; y += 4) {
                 const x1 = crackX(c1, y), x2 = crackX(c2, y);
-                const mid = (x1 + x2) / 2;
-                const hw = (x2 - x1) / 2 * segT;
+                const mid = (x1 + x2) / 2, hw = (x2 - x1) / 2 * segT;
                 if (y === 0) ctx.moveTo(mid - hw, y);
                 else ctx.lineTo(mid - hw, y);
               }
               for (let y = H; y >= 0; y -= 4) {
                 const x1 = crackX(c1, y), x2 = crackX(c2, y);
-                const mid = (x1 + x2) / 2;
-                const hw = (x2 - x1) / 2 * segT;
+                const mid = (x1 + x2) / 2, hw = (x2 - x1) / 2 * segT;
                 ctx.lineTo(mid + hw, y);
               }
               ctx.closePath();
@@ -376,8 +376,7 @@
         });
 
         if (t > 0.85) {
-          const blackAlpha = (t - 0.85) / 0.15;
-          ctx.fillStyle = `rgba(8,8,8,${blackAlpha})`;
+          ctx.fillStyle = `rgba(8,8,8,${(t - 0.85) / 0.15})`;
           ctx.fillRect(0, 0, W, H);
         }
 
@@ -392,12 +391,13 @@
       animId = requestAnimationFrame(frame);
     }
 
+    // ── KEY LISTENER — FIX: buffer must be long enough for both 'sphere'(6) and 'goodbye'(7) ──
     let typed = '', revealed = false, transitioning = false;
 
     document.addEventListener('keydown', (e) => {
       if (document.activeElement === document.getElementById('inputBox')) return;
       typed += e.key.toLowerCase();
-      if (typed.length > 6) typed = typed.slice(-6);
+      if (typed.length > 10) typed = typed.slice(-10);
       if (typed.endsWith('sphere') && !revealed && !transitioning) {
         revealed = true; transitioning = true; triggerReveal();
       }
@@ -429,16 +429,19 @@
 
     document.body.style.background = '#ffffff';
 
+    // ── CIPHER LOGIC — FIX: setMode uses 'encrypt'/'decrypt', comparisons match ──
     let mode = 'encrypt';
 
     function setMode(m) {
       mode = m;
-      document.getElementById('encryptBtn').classList.toggle('active', m === 'encrypt message');
-      document.getElementById('decryptBtn').classList.toggle('active', m === 'decrypt message');
-      document.getElementById('btnLabel').textContent = m.toUpperCase();
+      document.getElementById('encryptBtn').classList.toggle('active', m === 'encrypt');
+      document.getElementById('decryptBtn').classList.toggle('active', m === 'decrypt');
+      document.getElementById('btnLabel').textContent = m === 'encrypt' ? 'ENCRYPT' : 'DECRYPT';
       document.getElementById('inputBox').value = '';
       clearOutput();
-      document.getElementById('inputBox').placeholder = m === 'encrypt' ? 'Enter your message. Do not worry; we will keep it safe...' : 'Ah. So you are the lucky one. Well, what are you waiting for?';
+      document.getElementById('inputBox').placeholder = m === 'encrypt'
+        ? 'Enter your message. Do not worry; we will keep it safe...'
+        : 'Ah. So you are the lucky one. Well, what are you waiting for?';
     }
 
     const SECRET = 'CIPHER_VOID_STATIC_KEY_2024_X9Z';
@@ -475,10 +478,12 @@
       const input = document.getElementById('inputBox').value.trim();
       if (!input) return;
       const btn = document.querySelector('.exec-btn');
-      btn.textContent = '...'; btn.disabled = true;
+      btn.disabled = true;
+      document.getElementById('btnLabel').textContent = '...';
       try { typeOutput(mode === 'encrypt' ? await encryptMsg(input) : await decryptMsg(input)); }
       catch(e) { typeOutput('// ERROR: ' + (e.message || 'failed')); }
-      btn.textContent = mode.toUpperCase(); btn.disabled = false;
+      document.getElementById('btnLabel').textContent = mode === 'encrypt' ? 'ENCRYPT' : 'DECRYPT';
+      btn.disabled = false;
     }
 
     function typeOutput(text) {
