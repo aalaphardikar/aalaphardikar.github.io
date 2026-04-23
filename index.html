@@ -65,7 +65,7 @@
       </div>
       <div class="mode-bar">
         <button class="mode-btn active" id="encryptBtn" onclick="setMode('encrypt')"><span>⬡ Encrypt</span></button>
-        <button class="mode-btn" id="decryptBtn" onclick="setMode('decrypt')"><span>⬡ Decrypt</span></button>
+        <button class="mode-btn" id="decryptBtn" onclick="setMode('Decrypt Message')"><span>⬡ Decrypt Message</span></button>
       </div>
       <div class="panel">
         <div class="box-label">input message</div>
@@ -433,12 +433,12 @@
 
     function setMode(m) {
       mode = m;
-      document.getElementById('encryptBtn').classList.toggle('active', m === 'encrypt');
-      document.getElementById('decryptBtn').classList.toggle('active', m === 'decrypt');
+      document.getElementById('encryptBtn').classList.toggle('active', m === 'encrypt message');
+      document.getElementById('decryptBtn').classList.toggle('active', m === 'decrypt message');
       document.getElementById('btnLabel').textContent = m.toUpperCase();
       document.getElementById('inputBox').value = '';
       clearOutput();
-      document.getElementById('inputBox').placeholder = m === 'encrypt' ? 'Enter message to encrypt...' : 'Enter encrypted text to decrypt...';
+      document.getElementById('inputBox').placeholder = m === 'encrypt' ? 'Enter your message. Do not worry; we will keep it safe...' : 'Ah. So you are the lucky one. Well, what are you waiting for?';
     }
 
     const SECRET = 'CIPHER_VOID_STATIC_KEY_2024_X9Z';
